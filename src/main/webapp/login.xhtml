@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core"
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Quizly - Welcome Back</title>
+    <h:outputStylesheet name="css/login.css" />
+</h:head>
+<h:body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="logo">Quizly</h1>
+            <h2>Welcome back</h2>
+            <p class="subtitle">Please enter your details to access your dashboard.</p>
+
+            <h:form id="loginForm">
+                <h:messages globalOnly="true" styleClass="error-message" />
+
+                <div class="input-group">
+                    <h:outputLabel for="email" value="EMAIL ADDRESS" />
+                    <h:inputText id="email" value="#{loginBean.email}" placeholder="name@company.com" required="true" />
+                </div>
+
+                <div class="input-group">
+                    <div class="label-row">
+                        <h:outputLabel for="password" value="PASSWORD" />
+                        <h:outputLink value="#" class="forgot-link">Forgot password?</h:outputLink>
+                    </div>
+                    <div class="password-wrapper">
+                        <h:inputSecret id="password" value="#{loginBean.password}" placeholder="••••••••"
+                            required="true" />
+                        <i class="eye-icon"></i>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <h:selectBooleanCheckbox id="remember" value="#{loginBean.rememberMe}" />
+                    <h:outputLabel for="remember" value="Remember for 30 days" />
+                </div>
+
+                <h:commandButton value="Sign In" action="#{loginBean.doLogin}" styleClass="btn-primary" ajax="false" />
+
+                <h:commandLink action="#{loginBean.continueWithGoogle}" styleClass="btn-google">
+                    <h:graphicImage name="img/google-logo.svg" alt="G" />
+                    <span>Continue with Google</span>
+                </h:commandLink>
+            </h:form>
+
+            <p class="footer-text">
+                Don't have an account? <h:outputLink value="signup.xhtml">Create Account</h:outputLink>
+            </p>
+        </div>
+    </div>
+</h:body>
+
+</html>

@@ -16,4 +16,22 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+
+    <!-- 1. Lock down the /prof/* URL path -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Professor Secured Pages</web-resource-name>
+            <url-pattern>/prof/*</url-pattern>
+        </web-resource-collection>
+        <!-- 2. Require the PROFESSOR role to access it -->
+        <auth-constraint>
+            <role-name>PROFESSOR</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <!-- 3. Declare the security roles used in the application -->
+    <security-role>
+        <role-name>PROFESSOR</role-name>
+    </security-role>
+
 </web-app>

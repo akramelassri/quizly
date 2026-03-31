@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core"
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Quizly - Create Account</title>
+    <!-- We reuse the identical CSS logic from login -->
+    <h:outputStylesheet name="css/login.css" />
+</h:head>
+<h:body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="logo">Quizly</h1>
+            <h2>Create Account</h2>
+            <p class="subtitle">Join Quizly to create and manage incredible quizzes.</p>
+
+            <h:form id="signupForm">
+                <h:messages globalOnly="true" styleClass="error-message" />
+
+                <!-- NEW NAME FIELD -->
+                <div class="input-group">
+                    <h:outputLabel for="name" value="FULL NAME" />
+                    <h:inputText id="name" value="#{signupBean.name}" placeholder="Dr. John Doe" required="true" 
+                                 requiredMessage="Name is required" />
+                </div>
+
+                <div class="input-group">
+                    <h:outputLabel for="email" value="EMAIL ADDRESS" />
+                    <h:inputText id="email" value="#{signupBean.email}" placeholder="name@company.com" required="true" 
+                                 requiredMessage="Email is required" />
+                </div>
+
+                <div class="input-group">
+                    <h:outputLabel for="password" value="PASSWORD" />
+                    <div class="password-wrapper">
+                        <h:inputSecret id="password" value="#{signupBean.password}" placeholder="••••••••"
+                            required="true" requiredMessage="Password is required" />
+                        <!-- Assuming eye-icon is handled via an external JS script in your app -->
+                        <i class="eye-icon"></i>
+                    </div>
+                </div>
+
+                <h:commandButton value="Sign Up" action="#{signupBean.doSignup}" styleClass="btn-primary" />
+            </h:form>
+
+            <p class="footer-text">
+                Already have an account? <h:outputLink value="login.xhtml">Sign In</h:outputLink>
+            </p>
+        </div>
+    </div>
+</h:body>
+</html>

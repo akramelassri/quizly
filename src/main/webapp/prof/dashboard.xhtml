@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Professor Dashboard - Quizly</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .dashboard-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); text-align: center; }
+        .success-text { color: #10B981; font-weight: bold; font-size: 20px; }
+        .btn-logout { background-color: #EF4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 20px; text-decoration: none; display: inline-block; }
+        .btn-logout:hover { background-color: #DC2626; }
+    </style>
+</h:head>
+<h:body>
+    <div class="dashboard-container">
+        <h1>Welcome to your Dashboard, #{dashboardBean.currentProf != null ? dashboardBean.currentProf.name : 'Professor'}! 🎉</h1>
+        
+        <p class="success-text">If you are seeing this page, then Authentication works perfectly!</p>
+        
+        <!-- Welcome the user using the security API caller principal -->
+        <p>Logged in as: <strong>#{dashboardBean.currentProf != null ? dashboardBean.currentProf.email : facesContext.externalContext.userPrincipal.name}</strong></p>
+        
+        <h:form>
+            <h:commandButton value="Logout" action="#{loginBean.doLogout}" styleClass="btn-logout" />
+        </h:form>
+    </div>
+</h:body>
+</html>
