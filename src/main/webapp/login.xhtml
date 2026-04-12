@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Quizly - Login</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 380px;
+        }
+        h1 { font-size: 24px; margin-bottom: 5px; }
+        h2 { font-size: 20px; margin-bottom: 10px; color: #111; }
+        p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+        
+        label { display: block; font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;}
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #E0E0E0;
+            background-color: #F5F5F5;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .options { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 20px; align-items: center;}
+        .options a { color: #0056b3; text-decoration: none; }
+        
+        .btn-primary {
+            width: 100%; padding: 12px; background-color: #0056b3; color: white;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 15px;
+        }
+        .btn-google {
+            width: 100%; padding: 12px; background-color: #F5F5F5; color: #333;
+            border: 1px solid #E0E0E0; border-radius: 6px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .footer { text-align: center; font-size: 12px; margin-top: 20px; color: #666;}
+        .footer a { color: #0056b3; text-decoration: none; }
+        
+        #errorMessage { color: red; font-size: 12px; text-align: center; margin-bottom: 15px; display: none; }
+    </style>
+</h:head>
+<h:body>
+
+    <div class="login-card">
+        <h1>Quizly</h1>
+        <h2>Welcome back</h2>
+        <p class="subtitle">Please enter your details to access your dashboard.</p>
+
+        <div id="errorMessage"></div>
+
+        <label>Email Address</label>
+        <input type="email" id="emailInput" placeholder="name@company.com" />
+
+        <div style="display: flex; justify-content: space-between;">
+            <label>Password</label>
+            <a href="forgot-password.xhtml" style="font-size: 11px; color: #0056b3; text-decoration: none;">Forgot password?</a>
+        </div>
+        <input type="password" id="passwordInput" placeholder="••••••••" />
+
+        <div class="options">
+            <label style="text-transform: none; font-weight: normal; margin: 0; display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" /> Remember for 30 days
+            </label>
+        </div>
+
+        <button id="signInBtn" class="btn-primary">Sign In</button>
+        
+        <button id="googleBtn" class="btn-google">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+        </button>
+        <div class="footer">
+            Don't have an account? <a href="signup.xhtml">Create Account</a>
+        </div>
+    </div>
+
+    <h:form id="jsfAuthForm" style="display: none;">
+        <h:inputHidden id="firebaseToken" value="#{loginBean.firebaseToken}" />
+        <h:commandButton id="submitTokenBtn" action="#{loginBean.completeLogin}" />
+    </h:form>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwWjdArUUA_Z2OrG2nfvcVNB8Mw32NVk0",
+            authDomain: "quizly-356ee.firebaseapp.com",
+            projectId: "quizly-356ee",
+            storageBucket: "quizly-356ee.firebasestorage.app",
+            messagingSenderId: "363406687914",
+            appId: "1:363406687914:web:ea95a7b5ed93c187fa1ad3",
+            measurementId: "G-1E52PJRG4K"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        const errorDiv = document.getElementById("errorMessage");
+
+        function sendTokenToJava(token) {
+            sessionStorage.setItem("quizlyToken", token); 
+            document.getElementById("jsfAuthForm:firebaseToken").value = token;
+            document.getElementById("jsfAuthForm:submitTokenBtn").click();
+        }
+
+        document.getElementById("signInBtn").addEventListener("click", () => {
+            const email = document.getElementById("emailInput").value;
+            const password = document.getElementById("passwordInput").value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    return userCredential.user.getIdToken();
+                })
+                .then((token) => {
+                    sendTokenToJava(token);
+                })
+                .catch((error) => {
+                    errorDiv.style.display = "block";
+                    errorDiv.innerText = "Login Failed: " + error.message;
+                });
+        });
+
+        document.getElementById("googleBtn").addEventListener("click", () => {
+            signInWithPopup(auth, googleProvider)
+                .then((result) => {
+                    return result.user.getIdToken();
+                })
+                .then((token) => {
+                    sendTokenToJava(token);
+                })
+                .catch((error) => {
+                    errorDiv.style.display = "block";
+                    errorDiv.innerText = "Google Login Failed: " + error.message;
+                });
+        });
+    </script>
+</h:body>
+</html>
