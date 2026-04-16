@@ -72,4 +72,5 @@ public class LoginBean {
             externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml?error=true");
         }
     }
+
 }

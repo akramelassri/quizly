@@ -2,100 +2,126 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:c="jakarta.tags.core">
+      xmlns:ui="jakarta.faces.facelets">
 <h:head>
-    <title>Quizly - Questions</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #F8F9FA; margin: 0; padding: 40px; }
-        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 860px; margin: 0 auto; }
-        h1 { color: #111; margin-bottom: 5px; }
-        h3 { color: #333; margin-bottom: 15px; font-size: 16px; }
-        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
-        label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
-        input[type="text"], textarea { padding: 10px 12px; border: 1px solid #E0E0E0; border-radius: 6px; font-size: 14px; background: #F5F5F5; width: 100%; box-sizing: border-box; }
-        .form-group { margin-bottom: 15px; }
-        .choice-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
-        .choice-row input[type="text"] { flex: 1; }
-        .btn-primary { padding: 10px 20px; background-color: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-primary:hover { background-color: #004494; }
-        .btn-danger { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .btn-secondary { padding: 6px 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .btn-link { padding: 6px 12px; background: none; color: #0056b3; border: 1px solid #0056b3; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .btn-add-choice { padding: 6px 14px; background: none; color: #0056b3; border: 1px dashed #0056b3; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
-        .question-card { background: #F8F9FA; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
-        .question-card p { margin: 0 0 10px 0; font-weight: bold; color: #111; }
-        .choice-item { font-size: 13px; color: #555; padding: 3px 0; }
-        .choice-item.correct { color: #1a7a3f; font-weight: bold; }
-        .actions { display: flex; gap: 8px; margin-top: 10px; }
-        .back-link { color: #0056b3; font-size: 14px; text-decoration: none; display: inline-block; margin-bottom: 20px; }
-        .divider { border: none; border-top: 1px solid #eee; margin: 30px 0; }
-        .empty { color: #999; font-size: 14px; }
-    </style>
+    <title>Quizly - Manage Questions</title>
+    <h:outputStylesheet name="css/base.css" />
 </h:head>
 <h:body>
-    <div class="container">
-        <h:link value="← Back to Quizzes" outcome="quizzes" styleClass="back-link" />
-        <h1>#{questionBean.currentQuiz.title}</h1>
-        <p class="subtitle">#{questionBean.currentQuiz.subject}</p>
 
-        <h:form id="questionForm">
-            <h3>#{not empty questionBean.currentQuestion.id ? 'Edit Question' : 'Add a Question'}</h3>
-            <div class="form-group">
-                <label>Question Text</label>
-                <h:inputTextarea value="#{questionBean.currentQuestion.questionText}" rows="2" required="true" />
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                Instructor Portal
+                <span class="brand-sub">MANAGE YOUR CURRICULUM</span>
+            </div>
+            
+            <nav>
+                <h:link outcome="quizzes" styleClass="nav-link active" value="MY QUIZZES" />
+                <a href="#" class="nav-link">HISTORY</a>
+                <a href="#" class="nav-link">SETTINGS</a>
+            </nav>
+            
+            <div class="sidebar-spacer"></div>
+            
+            <h:form>
+                <h:commandButton value="Logout" action="#{quizBean.logout}" styleClass="nav-link" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer;" />
+            </h:form>
+        </aside>
+
+        <main class="main-content">
+            
+            <h:link outcome="quizzes" styleClass="back-link">
+                <span>←</span> Back to Quizzes
+            </h:link>
+            
+            <div class="quiz-header">
+                <h1>#{questionBean.currentQuiz.title}</h1>
+                <p class="subtitle">#{empty questionBean.currentQuiz.subject ? 'General Subject' : questionBean.currentQuiz.subject}</p>
             </div>
 
-            <label>Choices</label>
-            <c:forEach items="#{questionBean.currentChoices}" var="choice" varStatus="s">
-                <div class="choice-row">
-                    <h:inputText value="#{choice.choiceText}" placeholder="Choice text" />
-                    <h:selectBooleanCheckbox value="#{choice.correct}" />
-                    <span style="font-size:12px; color:#555;">Correct</span>
-                    <h:commandButton value="✕" styleClass="btn-danger" action="#{questionBean.removeChoiceField(s.index)}" />
-                </div>
-            </c:forEach>
+            <div class="form-panel">
+                <h:form id="questionForm">
+                    <h3 style="margin-bottom: 16px; color: var(--text-main);">
+                        #{not empty questionBean.currentQuestion.id ? 'Edit Question' : 'Add a New Question'}
+                    </h3>
+                    
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label>Question Text</label>
+                        <h:inputTextarea value="#{questionBean.currentQuestion.questionText}" rows="2" required="true" />
+                    </div>
 
-            <h:commandButton value="+ Add Choice" styleClass="btn-add-choice" action="#{questionBean.addChoiceField}" />
-
-            <div style="margin-top: 20px;">
-                <c:choose>
-                    <c:when test="${not empty questionBean.currentQuestion.id}">
-                        <h:commandButton value="Save Changes" styleClass="btn-primary" action="#{questionBean.updateQuestion}" style="margin-right: 10px;" />
-                        <h:commandButton value="Cancel" styleClass="btn-secondary" action="#{questionBean.cancelEdit}" />
-                    </c:when>
-                    <c:otherwise>
-                        <h:commandButton value="Save Question" styleClass="btn-primary" action="#{questionBean.addQuestion}" />
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </h:form>
-
-        <hr class="divider" />
-
-        <h3>Questions (#{questionBean.questions.size()})</h3>
-        <c:choose>
-            <c:when test="${empty questionBean.questions}">
-                <p class="empty">No questions yet.</p>
-            </c:when>
-            <c:otherwise>
-                <h:form>
-                    <c:forEach items="#{questionBean.questions}" var="question" varStatus="s">
-                        <div class="question-card">
-                            <p>#{s.index + 1}. #{question.questionText}</p>
-                            <c:forEach items="#{question.choices}" var="choice">
-                                <div class="choice-item #{choice.correct ? 'correct' : ''}">
-                                    #{choice.correct ? '✓' : '○'} #{choice.choiceText}
-                                </div>
-                            </c:forEach>
-                            <div class="actions">
-                                <h:commandButton value="Edit" styleClass="btn-secondary" action="#{questionBean.prepareEdit(question)}" />
-                                <h:commandButton value="Delete" styleClass="btn-danger" action="#{questionBean.deleteQuestion(question.id)}" />
+                    <label style="margin-bottom: 8px; display: block;">Answer Choices</label>
+                    
+                    <ui:repeat value="#{questionBean.currentChoices}" var="choice" varStatus="s">
+                        <div class="choice-row">
+                            <h:inputText value="#{choice.choiceText}" placeholder="Enter choice text..." required="true" />
+                            
+                            <div class="checkbox-wrapper">
+                                <h:selectBooleanCheckbox value="#{choice.correct}" />
+                                Correct Answer
                             </div>
+                            
+                            <h:commandButton value="✕" action="#{questionBean.removeChoiceField(s.index)}" styleClass="btn-icon-danger" immediate="true" title="Remove Choice" />
                         </div>
-                    </c:forEach>
+                    </ui:repeat>
+
+                    <h:commandButton value="+ Add Another Choice" action="#{questionBean.addChoiceField}" styleClass="btn-outline-primary" immediate="true" />
+
+                    <div class="form-actions" style="margin-top: 32px;">
+                        <h:commandButton value="Save Question" action="#{questionBean.addQuestion}" styleClass="btn btn-primary" rendered="#{empty questionBean.currentQuestion.id}" />
+                        
+                        <h:commandButton value="Update Question" action="#{questionBean.updateQuestion}" styleClass="btn btn-primary" rendered="#{not empty questionBean.currentQuestion.id}" />
+                        
+                        <h:commandButton value="Cancel Edit" action="#{questionBean.cancelEdit}" styleClass="btn btn-secondary" immediate="true" rendered="#{not empty questionBean.currentQuestion.id}" />
+                    </div>
                 </h:form>
-            </c:otherwise>
-        </c:choose>
+            </div>
+
+            <div class="section-title">
+                <span>Questions in this Quiz</span>
+                <span style="background: #e9ecef; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold;">#{questionBean.questions.size()}</span>
+            </div>
+
+            <h:form id="questionsListForm">
+                <h:panelGroup layout="block" class="empty-state" rendered="#{empty questionBean.questions}">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+                    <p>No questions added yet. Use the form above to create your first one.</p>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block" class="question-list" rendered="#{not empty questionBean.questions}">
+                    <ui:repeat value="#{questionBean.questions}" var="question" varStatus="qs">
+                        <div class="question-card">
+                            
+                            <div class="question-card-header">
+                                <p class="question-card-text">#{qs.index + 1}. #{question.questionText}</p>
+                                <div style="display: flex; gap: 8px;">
+                                    <h:commandButton value="Edit" action="#{questionBean.prepareEdit(question)}" styleClass="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" />
+                                    <h:commandButton value="Delete" action="#{questionBean.deleteQuestion(question.id)}" styleClass="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="return confirm('Delete this question?');" />
+                                </div>
+                            </div>
+                            
+                            <div class="choice-list">
+                                <ui:repeat value="#{question.choices}" var="choice">
+                                    <div class="choice-item #{choice.correct ? 'correct' : ''}">
+                                        <h:panelGroup rendered="#{choice.correct}">
+                                            <span class="correct-icon">✓</span>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{not choice.correct}">
+                                            <span class="empty-circle"></span>
+                                        </h:panelGroup>
+                                        #{choice.choiceText}
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                            
+                        </div>
+                    </ui:repeat>
+                </h:panelGroup>
+            </h:form>
+
+        </main>
     </div>
+
 </h:body>
 </html>
