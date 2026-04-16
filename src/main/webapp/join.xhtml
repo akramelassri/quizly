@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>Join Quizly</title>
+    <style>
+        /* Quizly Theme */
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        
+        .header { position: absolute; top: 0; width: 100%; background-color: #0056b3; color: white; padding: 15px 20px; font-weight: bold; text-align: center; font-size: 24px; box-sizing: border-box; }
+        
+        .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        
+        /* Form Inputs */
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 18px; text-align: center; font-weight: bold; box-sizing: border-box; transition: border-color 0.2s; }
+        input:focus { border-color: #0056b3; outline: none; }
+        input::placeholder { color: #aaa; font-weight: normal; }
+        
+        .join-btn { background-color: #333; color: white; border: none; width: 100%; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .join-btn:hover { background-color: #000; }
+        
+        /* Waiting Screen (Hidden by default) */
+        #waitingArea { display: none; }
+        .spinner { margin: 20px auto; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #0056b3; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .error-msg { color: #dc3545; font-weight: bold; margin-bottom: 15px; display: none; }
+    </style>
+</h:head>
+<h:body>
+
+    <div class="header">
+        é uizly
+    </div>
+
+    <div class="card" id="loginArea">
+        <h2 style="margin-top: 0;">Join Game</h2>
+        <div id="errorBox" class="error-msg">Invalid PIN or Room Closed.</div>
+        
+        <input type="text" id="pinInput" placeholder="Game PIN" autocomplete="off" />
+        <input type="text" id="nameInput" placeholder="Nickname" autocomplete="off" />
+        
+        <button class="join-btn" id="joinBtn">Enter</button>
+    </div>
+
+    <div class="card" id="waitingArea">
+        <h2>You're in!</h2>
+        <h3 id="displayNameDisplay" style="color: #0056b3;"></h3>
+        <div class="spinner"></div>
+        <p style="color: #666; font-weight: bold; margin-top: 20px;">See your nickname on screen?</p>
+        <p style="font-size: 14px; color: #999;">Waiting for the host to start the game...</p>
+    </div>
+
+    <script>
+        let websocket;
+        const joinBtn = document.getElementById("joinBtn");
+        const pinInput = document.getElementById("pinInput");
+        const nameInput = document.getElementById("nameInput");
+        const errorBox = document.getElementById("errorBox");
+
+        const loginArea = document.getElementById("loginArea");
+        const waitingArea = document.getElementById("waitingArea");
+        const displayNameDisplay = document.getElementById("displayNameDisplay");
+
+        joinBtn.addEventListener("click", () => {
+            const pin = pinInput.value.trim();
+            const studentName = nameInput.value.trim();
+
+            if (!pin || !studentName) {
+                showError("Please enter both a PIN and a Nickname.");
+                return;
+            }
+
+            // Hide previous errors
+            errorBox.style.display = "none";
+            
+            // Disable button to prevent spam clicking
+            joinBtn.innerText = "Connecting...";
+            joinBtn.disabled = true;
+
+            connectToRoom(pin, studentName);
+        });
+
+        function connectToRoom(pin, studentName) {
+            // Important: Update this path to match your WildFly deployment!
+            const wsUri = "ws://localhost:8080/quizly-1.0-SNAPSHOT/quiz/" + pin;
+            
+            websocket = new WebSocket(wsUri);
+
+            websocket.onopen = function() {
+                // Once connected, immediately send the JSON to register as a STUDENT
+                let joinCmd = {
+                    action: "JOIN",
+                    role: "STUDENT",
+                    name: studentName
+                };
+                websocket.send(JSON.stringify(joinCmd));
+
+                // Swap the UI to the waiting screen
+                loginArea.style.display = "none";
+                waitingArea.style.display = "block";
+                displayNameDisplay.innerText = studentName;
+            };
+
+            websocket.onmessage = function(evt) {
+                try {
+                    let data = JSON.parse(evt.data);
+                    
+                    // We will add the logic for transitioning to the actual quiz questions here later!
+                    if (data.action === "START_GAME") {
+                        alert("The host started the game! Prepare for Question 1!");
+                        // window.location.href = "play-quiz.xhtml"; 
+                    }
+                } catch(e) {
+                    console.log("Failed to parse JSON: " + evt.data);
+                }
+            };
+
+            websocket.onclose = function(evt) {
+                // If the Java server rejects the connection (e.g., wrong PIN in @OnOpen)
+                loginArea.style.display = "block";
+                waitingArea.style.display = "none";
+                joinBtn.innerText = "Enter";
+                joinBtn.disabled = false;
+                
+                showError("Connection refused: " + (evt.reason || "Invalid PIN or Quiz not found."));
+            };
+            
+            websocket.onerror = function() {
+                showError("Network error. Is the server running?");
+            };
+        }
+
+        function showError(msg) {
+            errorBox.innerText = msg;
+            errorBox.style.display = "block";
+            joinBtn.innerText = "Enter";
+            joinBtn.disabled = false;
+        }
+    </script>
+</h:body>
+</html>
