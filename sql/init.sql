@@ -39,4 +39,12 @@ CREATE TABLE sessions (
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 );
 
+
+CREATE TABLE teachers (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255)
+);
+
 -- only tables left are prof, answers, and session participants
