@@ -269,17 +269,6 @@
 </h:head>
 <h:body>
 
-    <div class="sidebar">
-        <div class="instructor-profile">
-            <h3 style="margin:0 0 5px 0;">Instructor Portal</h3>
-            <p style="margin:0; font-size:12px; color:#888;">Manage your curriculum</p>
-        </div>
-        <div class="nav-item active">Live Session</div>
-        <div class="nav-item">My Quizzes</div>
-        <div class="nav-item">History</div>
-        <div class="nav-item">Settings</div>
-    </div>
-
     <div class="main-wrapper">
         <div class="top-header">
             <div>⏱ Live Session</div>
@@ -323,9 +312,15 @@
             </div>
 
             <div id="activeGameScreen">
-                <div
-                    style="background:#e7f1ff; color:#0d6efd; display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:bold; margin-bottom:15px;">
-                    LIVE QUESTION
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px;">
+                    <div
+                        style="background:#e7f1ff; color:#0d6efd; display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:bold;">
+                        LIVE QUESTION
+                    </div>
+                    <div
+                        style="background:#dc3545; color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:14px; box-shadow: 0 2px 4px rgba(220,53,69,0.3);">
+                        TIME REMAINING <span id="timerDisplay">00:60</span>
+                    </div>
                 </div>
 
                 <div class="question-title" id="hostQuestionText">
@@ -377,7 +372,8 @@
                                     id="confidenceGauge"></div>
                             </div>
                             <p style="font-size:12px; color:#888; text-align:left; margin:0;">Average points wagered:
-                                <span id="avgWager">0</span> pts</p>
+                                <span id="avgWager">0</span> pts
+                            </p>
                         </div>
 
                         <div class="card" style="padding:20px;">
@@ -397,6 +393,18 @@
 
         let ws;
         let studentCount = 0;
+
+        // --- GAME STATE VARIABLES ---
+        let choiceIdToLetterMap = {};
+        let currentStats = {
+            totalAnswers: 0,
+            wagerSum: 0,
+            counts: { A: 0, B: 0, C: 0, D: 0 }
+        };
+
+        // --- TIMER VARIABLES ---
+        let questionTimerInterval;
+        let timeLeft = 60;
 
         const lobbyScreen = document.getElementById("lobbyScreen");
         const activeGameScreen = document.getElementById("activeGameScreen");
@@ -425,19 +433,17 @@
                     const data = JSON.parse(event.data);
                     console.log("Host received:", data);
 
-                    // 1. Handle Students Joining the Lobby
                     if (data.action === "PLAYER_JOINED") {
                         addPlayerToScreen(data.name);
                     }
 
-                    // 2. Handle Game Start / Question Display
                     if (data.action === "NEW_QUESTION") {
                         transitionToActiveGame(data.data);
                     }
 
-                    // 3. (Future) Handle Real-time Answer Submissions
+                    // --- HANDLE REAL-TIME MATH ---
                     if (data.action === "STATS_UPDATE") {
-                        // This is where we will update the progress bars later!
+                        processStatsUpdate(data.choiceId, data.wager);
                     }
 
                 } catch (e) {
@@ -447,19 +453,16 @@
 
             ws.onclose = function (event) {
                 connStatus.innerText = "Connection lost. Please refresh the page.";
+                clearInterval(questionTimerInterval); // Stop timer if disconnected
             };
         }
 
         function addPlayerToScreen(playerName) {
-            // Update the counter badge
             studentCount++;
             studentCountBadge.innerText = studentCount;
 
-            // Create the UI pill
             const pill = document.createElement("div");
             pill.className = "student-pill";
-
-            // Add a little user icon (unicode) + the name safely
             pill.innerHTML = `<span class="student-icon">👤</span> `;
 
             const textSpan = document.createElement("span");
@@ -474,26 +477,61 @@
                 if (studentCount === 0) {
                     if (!confirm("No students have joined yet! Start anyway?")) return;
                 }
-                // Tell the server to start! (This triggers StartGameCommand in Java)
                 ws.send(JSON.stringify({ action: "START_GAME", role: "HOST" }));
-            } else {
-                alert("Cannot start game. Waiting for connection...");
             }
         }
 
         function transitionToActiveGame(questionData) {
-            // Swap visibility
             lobbyScreen.style.display = "none";
             activeGameScreen.style.display = "block";
-
-            // Update Header Status
             document.getElementById("headerStatus").innerText = "LIVE | Code: " + pin;
-
-            // Inject the question safely
             document.getElementById("hostQuestionText").textContent = questionData.text;
 
-            // Reset the bars to 0% for the new question
+            // 1. Map the Database IDs to A, B, C, D
+            choiceIdToLetterMap = {};
+            const letters = ['A', 'B', 'C', 'D'];
+            questionData.choices.forEach((choice, index) => {
+                if (index < 4) {
+                    choiceIdToLetterMap[choice.id] = letters[index];
+                }
+            });
+
+            // 2. Reset the math for the new question
+            currentStats = {
+                totalAnswers: 0,
+                wagerSum: 0,
+                counts: { A: 0, B: 0, C: 0, D: 0 }
+            };
             resetStatisticBars();
+
+            // 3. Start the 60 second countdown
+            startTimer();
+        }
+
+        // --- REAL TIME MATH LOGIC ---
+        function processStatsUpdate(dbChoiceId, wager) {
+            const letter = choiceIdToLetterMap[dbChoiceId];
+            if (!letter) return; // Failsafe
+
+            // Update raw numbers
+            currentStats.totalAnswers++;
+            currentStats.wagerSum += wager;
+            currentStats.counts[letter]++;
+
+            // Update Progress Bars
+            ['A', 'B', 'C', 'D'].forEach(l => {
+                let pct = Math.round((currentStats.counts[l] / currentStats.totalAnswers) * 100) || 0;
+                document.getElementById('bar' + l).style.width = pct + '%';
+                document.getElementById('pct' + l).innerText = pct + '%';
+            });
+
+            // Update Average Wager Text
+            let avgWager = Math.round(currentStats.wagerSum / currentStats.totalAnswers);
+            document.getElementById('avgWager').innerText = avgWager;
+
+            // Update Confidence Gauge (Assuming MAX wager is 100 points)
+            let confPct = Math.min(100, Math.round((avgWager / 100) * 100));
+            document.getElementById('confidenceGauge').style.width = confPct + '%';
         }
 
         function resetStatisticBars() {
@@ -503,6 +541,36 @@
             });
             document.getElementById('confidenceGauge').style.width = '0%';
             document.getElementById('avgWager').innerText = '0';
+        }
+
+        // --- COUNTDOWN LOGIC ---
+        function startTimer() {
+            clearInterval(questionTimerInterval);
+            timeLeft = 60;
+            updateTimerUI();
+
+            questionTimerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    autoAdvanceQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            let seconds = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+            document.getElementById("timerDisplay").innerText = "00:" + seconds;
+        }
+
+        function autoAdvanceQuestion() {
+            console.log("Time is up! Requesting next question...");
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                // This mimics the host clicking the "Next Question" button
+                ws.send(JSON.stringify({ action: "NEXT_QUESTION", role: "HOST" }));
+            }
         }
         //]]>
     </script>
