@@ -24,7 +24,7 @@ public class SignupBean {
     @Inject
     private TeacherDAO TeacherDAO;
     @Inject
-    private TeacherSession TeacherSession;
+    private TeacherSession teacherSession;
 
 
     public void completeSignup() throws IOException {
@@ -49,12 +49,12 @@ public class SignupBean {
                 TeacherDAO.save(newTeacher);
             }
 
-            TeacherSession.setEmail(email);
-            TeacherSession.setName(TeacherName);
-            TeacherSession.setFirebaseToken(firebaseToken);
+            teacherSession.setEmail(email);
+            teacherSession.setName(TeacherName);
+            teacherSession.setFirebaseToken(firebaseToken);
 
             // 5. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/Teacher/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/dashboard.xhtml");
 
         } catch (Exception e) {
             e.printStackTrace();

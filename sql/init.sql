@@ -43,8 +43,7 @@ CREATE TABLE sessions (
 CREATE TABLE teachers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255)
+    email VARCHAR(150) NOT NULL UNIQUE
 );
 
 -- only tables left are prof, answers, and session participants

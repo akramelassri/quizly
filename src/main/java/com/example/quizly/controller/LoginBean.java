@@ -47,7 +47,7 @@ public class LoginBean {
             teacherSession.setFirebaseToken(firebaseToken);
 
             // 4. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/Teacher/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/dashboard.xhtml");
 
         } catch (Exception e) {
             // Token was fake or expired
