@@ -14,7 +14,6 @@ import jakarta.inject.Named;
 import java.io.IOException;
 import java.util.Optional;
 
-
 @Named
 @RequestScoped
 public class SignupBean {
@@ -25,7 +24,6 @@ public class SignupBean {
     private TeacherDAO teacherDAO;
     @Inject
     private TeacherSession teacherSession;
-
 
     public void completeSignup() throws IOException {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -43,9 +41,9 @@ public class SignupBean {
                 // Notice we DO NOT save a password. Firebase handles that.
                 Teacher newTeacher = new Teacher();
                 newTeacher.setEmail(email);
-                newTeacher.setName(teacherName); 
+                newTeacher.setName(teacherName);
                 // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
-                
+
                 teacherDAO.save(newTeacher);
             }
 
@@ -54,7 +52,7 @@ public class SignupBean {
             teacherSession.setFirebaseToken(firebaseToken);
 
             // 5. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/quizzes.xhtml");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,9 +61,19 @@ public class SignupBean {
         }
     }
 
-    public String getFirebaseToken() { return firebaseToken; }
-    public void setFirebaseToken(String firebaseToken) { this.firebaseToken = firebaseToken; }
-    
-    public String getTeacherName() { return teacherName; }
-    public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
+    public String getFirebaseToken() {
+        return firebaseToken;
+    }
+
+    public void setFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
 }

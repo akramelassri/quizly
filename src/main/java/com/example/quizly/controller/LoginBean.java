@@ -6,8 +6,8 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import java.util.Optional;
 import java.io.IOException;
+import java.util.Optional;
 
 import com.example.quizly.dao.TeacherDAO;
 import com.example.quizly.models.Teacher;
@@ -23,6 +23,7 @@ public class LoginBean {
 
     @Inject
     private TeacherDAO teacherDAO;
+
     @Inject
     private TeacherSession teacherSession;
 
@@ -38,39 +39,36 @@ public class LoginBean {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
 
-        // 1. (Optional) You can use the Firebase Admin SDK here to double-verify the token
-        // if you want to be extra secure, just like we did in the REST filter.
-
         try {
-            // 2. Decode the token to get the real email from Google
+            // 1. Decode the token to get the real email and name from Google
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
-            
-            // 3. FILL THE BUCKET! 
-            // Now the server will remember this specific Teacheressor globally.
-            teacherSession.setEmail(decodedToken.getEmail());
-            teacherSession.setName(decodedToken.getName());
-            teacherSession.setFirebaseToken(firebaseToken);
-            
-            Optional<Teacher> existingTeacher = teacherDAO.findByEmail(teacherSession.getEmail());
+
+            // 2. Check if the Teacher exists in Postgres
+            Optional<Teacher> existingTeacher = teacherDAO.findByEmail(decodedToken.getEmail());
 
             if (existingTeacher.isEmpty()) {
                 // 3. If they are brand new, save them to Postgres!
                 // Notice we DO NOT save a password. Firebase handles that.
                 Teacher newTeacher = new Teacher();
-                newTeacher.setEmail(teacherSession.getEmail());
-                newTeacher.setName(teacherSession.getName()); 
-                // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
-                
+                newTeacher.setEmail(decodedToken.getEmail());
+                newTeacher.setName(decodedToken.getName());
+
                 teacherDAO.save(newTeacher);
             }
 
-            // 4. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/dashboard.xhtml");
+            // 4. FILL THE BUCKET!
+            // Now the server will remember this specific Teacher globally for this session.
+            teacherSession.setEmail(decodedToken.getEmail());
+            teacherSession.setName(decodedToken.getName());
+            teacherSession.setFirebaseToken(firebaseToken);
+
+            // 5. Send them to the Dashboard
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/quizzes.xhtml");
 
         } catch (Exception e) {
             // Token was fake or expired
+            e.printStackTrace(); // Good for debugging if Firebase fails
             externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml?error=true");
         }
     }
-
 }

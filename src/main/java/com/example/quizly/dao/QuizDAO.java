@@ -16,14 +16,16 @@ public class QuizDAO implements DAO<Quiz, Long> {
     private EntityManagerFactory emf;
 
     @Override
-    public void save(Quiz quiz) {
+    public void save(Quiz newQuiz) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(quiz);
+            em.persist(newQuiz);
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         } finally {
             em.close();
@@ -50,6 +52,19 @@ public class QuizDAO implements DAO<Quiz, Long> {
         }
     }
 
+    public List<Quiz> findByTeacherEmail(String email) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em
+                    .createQuery("SELECT q FROM Quiz q WHERE q.teacher.email = :email ORDER BY q.createdAt DESC",
+                            Quiz.class)
+                    .setParameter("email", email)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Quiz> findByTeacher(Teacher teacher) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -62,14 +77,16 @@ public class QuizDAO implements DAO<Quiz, Long> {
     }
 
     @Override
-    public void update(Quiz quiz) {
+    public void update(Quiz updatedQuiz) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(quiz);
+            em.merge(updatedQuiz);
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         } finally {
             em.close();
@@ -81,11 +98,15 @@ public class QuizDAO implements DAO<Quiz, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            Quiz q = em.find(Quiz.class, id);
-            if (q != null) em.remove(q);
+            Quiz quiz = em.find(Quiz.class, id);
+            if (quiz != null) {
+                em.remove(quiz);
+            }
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         } finally {
             em.close();

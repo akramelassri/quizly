@@ -1,26 +1,27 @@
 package com.example.quizly.dao;
 
-import com.example.quizly.models.Question;
-import com.example.quizly.models.Quiz;
-import jakarta.enterprise.context.RequestScoped;
+import com.example.quizly.models.Session;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+
 import java.util.List;
 import java.util.Optional;
 
-@RequestScoped
-public class QuestionDAO implements DAO<Question, Long> {
+@ApplicationScoped
+public class SessionDAO implements DAO<Session, Long> {
 
     @Inject
     private EntityManagerFactory emf;
 
     @Override
-    public void save(Question newQuestion) {
+    public void save(Session newSession) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(newQuestion);
+            em.persist(newSession);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -33,50 +34,37 @@ public class QuestionDAO implements DAO<Question, Long> {
     }
 
     @Override
-    public Optional<Question> findById(Long id) {
+    public Optional<Session> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(Question.class, id));
+            return Optional.ofNullable(em.find(Session.class, id));
         } finally {
             em.close();
         }
     }
 
     @Override
-    public List<Question> findAll() {
+    public List<Session> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT q FROM Question q", Question.class).getResultList();
+            return em.createQuery("SELECT s FROM Session s", Session.class).getResultList();
         } finally {
             em.close();
         }
     }
 
     @Override
-    public void update(Question updatedQuestion) {
+    public void update(Session updatedSession) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(updatedQuestion);
+            em.merge(updatedSession);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
             throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    public List<Question> findByQuiz(Quiz quiz) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.choices WHERE q.quiz = :quiz",
-                    Question.class)
-                    .setParameter("quiz", quiz)
-                    .getResultList();
         } finally {
             em.close();
         }
@@ -87,9 +75,9 @@ public class QuestionDAO implements DAO<Question, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            Question question = em.find(Question.class, id);
-            if (question != null) {
-                em.remove(question);
+            Session session = em.find(Session.class, id);
+            if (session != null) {
+                em.remove(session);
             }
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -97,6 +85,18 @@ public class QuestionDAO implements DAO<Question, Long> {
                 em.getTransaction().rollback();
             }
             throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public Optional<Session> findByPin(String pin) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT s FROM Session s WHERE s.joinCode = :pin", Session.class)
+                    .setParameter("pin", pin)
+                    .getResultStream()
+                    .findFirst();
         } finally {
             em.close();
         }

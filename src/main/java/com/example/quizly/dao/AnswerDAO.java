@@ -1,26 +1,27 @@
 package com.example.quizly.dao;
 
-import com.example.quizly.models.Question;
-import com.example.quizly.models.Quiz;
-import jakarta.enterprise.context.RequestScoped;
+import com.example.quizly.models.Answer;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+
 import java.util.List;
 import java.util.Optional;
 
-@RequestScoped
-public class QuestionDAO implements DAO<Question, Long> {
+@ApplicationScoped
+public class AnswerDAO implements DAO<Answer, Long> {
 
     @Inject
     private EntityManagerFactory emf;
 
     @Override
-    public void save(Question newQuestion) {
+    public void save(Answer answer) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(newQuestion);
+            em.persist(answer);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -33,50 +34,37 @@ public class QuestionDAO implements DAO<Question, Long> {
     }
 
     @Override
-    public Optional<Question> findById(Long id) {
+    public Optional<Answer> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(Question.class, id));
+            return Optional.ofNullable(em.find(Answer.class, id));
         } finally {
             em.close();
         }
     }
 
     @Override
-    public List<Question> findAll() {
+    public List<Answer> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT q FROM Question q", Question.class).getResultList();
+            return em.createQuery("SELECT a FROM Answer a", Answer.class).getResultList();
         } finally {
             em.close();
         }
     }
 
     @Override
-    public void update(Question updatedQuestion) {
+    public void update(Answer answer) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(updatedQuestion);
+            em.merge(answer);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
             throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    public List<Question> findByQuiz(Quiz quiz) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.choices WHERE q.quiz = :quiz",
-                    Question.class)
-                    .setParameter("quiz", quiz)
-                    .getResultList();
         } finally {
             em.close();
         }
@@ -87,9 +75,9 @@ public class QuestionDAO implements DAO<Question, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            Question question = em.find(Question.class, id);
-            if (question != null) {
-                em.remove(question);
+            Answer answer = em.find(Answer.class, id);
+            if (answer != null) {
+                em.remove(answer);
             }
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -97,6 +85,30 @@ public class QuestionDAO implements DAO<Question, Long> {
                 em.getTransaction().rollback();
             }
             throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Answer> findByParticipantId(Long participantId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT a FROM Answer a WHERE a.participant.id = :participantId", Answer.class)
+                    .setParameter("participantId", participantId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Optional<Answer> findByParticipantIdAndQuestionId(Long participantId, Long questionId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT a FROM Answer a WHERE a.participant.id = :participantId AND a.question.id = :questionId", Answer.class)
+                    .setParameter("participantId", participantId)
+                    .setParameter("questionId", questionId)
+                    .getResultStream()
+                    .findFirst();
         } finally {
             em.close();
         }

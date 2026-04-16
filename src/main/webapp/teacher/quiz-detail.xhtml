@@ -62,11 +62,15 @@
                                 Correct Answer
                             </div>
                             
-                            <h:commandButton value="✕" action="#{questionBean.removeChoiceField(s.index)}" styleClass="btn-icon-danger" immediate="true" title="Remove Choice" />
+                            <h:commandButton value="✕" action="#{questionBean.removeChoiceField(s.index)}" styleClass="btn-icon-danger" title="Remove Choice">
+                                <f:ajax execute="@form" render="@form" />
+                            </h:commandButton>
                         </div>
                     </ui:repeat>
 
-                    <h:commandButton value="+ Add Another Choice" action="#{questionBean.addChoiceField}" styleClass="btn-outline-primary" immediate="true" />
+                    <h:commandButton value="+ Add Another Choice" action="#{questionBean.addChoiceField}" styleClass="btn-outline-primary">
+                        <f:ajax execute="@form" render="@form" />
+                    </h:commandButton>
 
                     <div class="form-actions" style="margin-top: 32px;">
                         <h:commandButton value="Save Question" action="#{questionBean.addQuestion}" styleClass="btn btn-primary" rendered="#{empty questionBean.currentQuestion.id}" />

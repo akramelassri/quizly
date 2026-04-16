@@ -1,8 +1,10 @@
 package com.example.quizly.models;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 
+@ApplicationScoped
 @Entity
 @Table(name = "sessions")
 public class Session {

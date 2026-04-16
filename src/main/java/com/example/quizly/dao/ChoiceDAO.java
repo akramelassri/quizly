@@ -16,14 +16,17 @@ public class ChoiceDAO implements DAO<Choice, Long> {
     private EntityManagerFactory emf;
 
     @Override
-    public void save(Choice choice) {
+
+    public void save(Choice newChoice) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(choice);
+            em.persist(newChoice);
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         } finally {
             em.close();
@@ -54,8 +57,8 @@ public class ChoiceDAO implements DAO<Choice, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(
-                "SELECT c FROM Choice c WHERE c.question = :question", 
-                Choice.class)
+                    "SELECT c FROM Choice c WHERE c.question = :question",
+                    Choice.class)
                     .setParameter("question", question)
                     .getResultList();
         } finally {
@@ -71,7 +74,8 @@ public class ChoiceDAO implements DAO<Choice, Long> {
             em.merge(choice);
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive())
+                em.getTransaction().rollback();
             throw e;
         } finally {
             em.close();
@@ -83,11 +87,15 @@ public class ChoiceDAO implements DAO<Choice, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            Choice c = em.find(Choice.class, id);
-            if (c != null) em.remove(c);
+            Choice choice = em.find(Choice.class, id);
+            if (choice != null) {
+                em.remove(choice);
+            }
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             throw e;
         } finally {
             em.close();
