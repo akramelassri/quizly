@@ -1,7 +1,8 @@
 package com.example.quizly.dao;
 
 import com.example.quizly.models.Session;
-import jakarta.enterprise.context.RequestScoped;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -9,7 +10,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Optional;
 
-@RequestScoped
+@ApplicationScoped
 public class SessionDAO implements DAO<Session, Long> {
 
     @Inject
@@ -92,7 +93,10 @@ public class SessionDAO implements DAO<Session, Long> {
     public Optional<Session> findByPin(String pin) {
         EntityManager em = emf.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(Session.class, pin));
+            return em.createQuery("SELECT s FROM Session s WHERE s.joinCode = :pin", Session.class)
+                    .setParameter("pin", pin)
+                    .getResultStream()
+                    .findFirst();
         } finally {
             em.close();
         }

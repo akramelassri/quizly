@@ -1,7 +1,9 @@
-package com.example.quizly.websocket;
+package com.example.quizly.websocket.listeners;
 
 import jakarta.websocket.Session;
 import java.io.IOException;
+
+import com.example.quizly.websocket.EventListener;
 
 // This lives ONLY in the WebSocket universe
 public class HostConnection implements EventListener {
@@ -9,14 +11,20 @@ public class HostConnection implements EventListener {
     private String name;
     private String email;
 
-    public HostConnection(Session session, String name,String email){
+    public HostConnection(Session session, String name, String email) {
         this.session = session;
         this.name = name;
-        this.email= email;
+        this.email = email;
     }
 
-    public Session getSession() { return session; }
-    public String getName() { return name; }
+    public Session getSession() {
+        return session;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -24,6 +32,7 @@ public class HostConnection implements EventListener {
     @Override
     public void update(String jsonEvent) {
         try {
+            System.out.println("the json event is :" + jsonEvent);
             if (session.isOpen()) {
                 session.getBasicRemote().sendText(jsonEvent);
             }

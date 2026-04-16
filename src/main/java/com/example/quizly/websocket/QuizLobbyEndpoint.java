@@ -11,7 +11,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.example.quizly.dao.SessionDAO;
 import com.example.quizly.models.SessionStatus;
-import com.example.quizly.websocket.command.JoinGameCommand;
+import com.example.quizly.websocket.command.*;
+import com.example.quizly.service.QuizGameService;
 
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
@@ -23,11 +24,11 @@ public class QuizLobbyEndpoint {
     private static Map<String, GameCommand> commandRegistry = new HashMap<>();
     private static Jsonb jsonb = JsonbBuilder.create();
     @Inject
-    private SessionDAO sessionDAO;
+    private QuizGameService gameService;
 
     static {
         commandRegistry.put("JOIN", new JoinGameCommand());
-        // commandRegistry.put("START_GAME", new StartGameCommand());
+        commandRegistry.put("START_GAME", new StartGameCommand());
         // commandRegistry.put("SUBMIT_ANSWER", new SubmitAnswerCommand());
     }
 
@@ -36,9 +37,18 @@ public class QuizLobbyEndpoint {
         try {
             boolean isRoomLive = false;
 
-            Optional<com.example.quizly.models.Session> roomOptional = sessionDAO.findByPin(pin);
+            Optional<com.example.quizly.models.Session> roomOptional = gameService.getSessionDao().findByPin(pin);
 
             if (roomOptional.isPresent()) {
+
+                com.example.quizly.models.Session room = roomOptional.get();
+
+                if (room.getStatus() != SessionStatus.WAITING) {
+                    CloseReason reason = new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT,
+                            "the session but it started or ended");
+                    session.close(reason);
+                    return;
+                }
 
                 isRoomLive = true;
 
@@ -68,7 +78,7 @@ public class QuizLobbyEndpoint {
         try {
             // 1. Convert the raw JSON string into our Java object
             IncomingMessage payload = jsonb.fromJson(jsonMessage, IncomingMessage.class);
-
+            System.out.println("Received message: " + jsonMessage);
             // 2. Figure out which room this user belongs to
             String pin = (String) session.getUserProperties().get("roomPin");
             QuizRoom room = rooms.get(pin);
@@ -83,7 +93,7 @@ public class QuizLobbyEndpoint {
 
             // 4. Execute the logic!
             if (command != null) {
-                command.execute(session, room, payload);
+                command.execute(session, room, payload, gameService);
             } else {
                 System.err.println("Unknown action received: " + payload.action);
             }
