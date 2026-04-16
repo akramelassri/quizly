@@ -10,6 +10,8 @@
         <class>com.example.quizly.models.Question</class>
         <class>com.example.quizly.models.Choice</class>
         <class>com.example.quizly.models.Session</class>
+        <class>com.example.quizly.models.SessionParticipant</class>
+        <class>com.example.quizly.models.Answer</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />

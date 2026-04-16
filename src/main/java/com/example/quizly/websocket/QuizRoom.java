@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.example.quizly.models.Quiz;
 import com.example.quizly.models.SessionStatus;
 import com.example.quizly.websocket.listeners.HostConnection;
 import com.example.quizly.websocket.listeners.UserSession;
@@ -54,6 +53,14 @@ public class QuizRoom {
 
     public void removePlayer(UserSession player) {
         players.remove(player);
+    }
+
+    public int getCurrentQuestionIndex() {
+        return currentQuestionIndex;
+    }
+
+    public void nextQuestion() {
+        currentQuestionIndex++;
     }
 
     public void broadcastQuestion(QuestionDTO question) {

@@ -39,13 +39,19 @@ public class JoinGameCommand implements GameCommand {
                 } catch (IOException ignored) {
                 }
             }
-
         } else if ("STUDENT".equals(message.role)) {
             System.err.println("the student is joining:" + message.name);
-            // Register the student
-            UserSession student = new UserSession(session, message.name);
+
+            String pin = session.getPathParameters().get("pin");
+
+            // 1. Register to Database AND get the ID back
+            Long participantDbId = gameService.addPlayerToSession(pin, message.name);
+
+            // 2. Pass that ID into the UserSession
+            UserSession student = new UserSession(session, message.name, participantDbId);
+
             room.addPlayer(student);
-            System.out.println("Student " + message.name + " registered.");
+            System.out.println("Student " + message.name + " registered with DB ID: " + participantDbId);
 
             // Optional: Tell the host's screen to update the player count
             if (room.getQuizhost() != null) {

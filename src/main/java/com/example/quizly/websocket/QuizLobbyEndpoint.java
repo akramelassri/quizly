@@ -29,7 +29,7 @@ public class QuizLobbyEndpoint {
     static {
         commandRegistry.put("JOIN", new JoinGameCommand());
         commandRegistry.put("START_GAME", new StartGameCommand());
-        // commandRegistry.put("SUBMIT_ANSWER", new SubmitAnswerCommand());
+        commandRegistry.put("SUBMIT_ANSWER", new SubmitAnswerCommand());
     }
 
     @OnOpen
