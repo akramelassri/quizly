@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+<h:head>
+    <title>Quizly - Instructor Portal</title>
+    <h:outputStylesheet name="css/base.css" />
+</h:head>
+<h:body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                Instructor Portal
+                <span class="brand-sub">MANAGE YOUR CURRICULUM</span>
+            </div>
+            
+            <nav>
+                <a href="#" class="nav-link active">MY QUIZZES</a>
+                <a href="#" class="nav-link">HISTORY</a>
+                <a href="#" class="nav-link">SETTINGS</a>
+            </nav>
+            
+            <div class="sidebar-spacer"></div>
+            
+            <h:form>
+                <h:commandButton value="Logout" action="#{quizBean.logout}" styleClass="nav-link" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer;" />
+            </h:form>
+        </aside>
+
+        <main class="main-content">
+            <h1>My Quizzes</h1>
+            <p class="subtitle">Create and manage your quizzes.</p>
+
+            <div class="form-panel">
+                <h:form id="quizForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <h:inputText value="#{quizBean.currentQuiz.title}" required="true" />
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <h:inputText value="#{quizBean.currentQuiz.subject}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <h:inputTextarea value="#{quizBean.currentQuiz.description}" rows="2" />
+                    </div>
+                    
+                    <div class="form-actions">
+                        <h:commandButton value="Save Changes" action="#{quizBean.updateQuiz}" styleClass="btn btn-primary" rendered="#{not empty quizBean.currentQuiz.id}" />
+                        
+                        <h:commandButton value="Cancel" action="#{quizBean.cancelEdit}" styleClass="btn btn-secondary" immediate="true" rendered="#{not empty quizBean.currentQuiz.id}" />
+                        
+                        <h:commandButton value="+ Create Quiz" action="#{quizBean.createQuiz}" styleClass="btn btn-primary" rendered="#{empty quizBean.currentQuiz.id}" />
+                    </div>
+                </h:form>
+            </div>
+
+            <h:form id="quizGridForm">
+                <h:panelGroup layout="block" class="empty-state" rendered="#{empty quizBean.quizzes}">
+                    <div style="font-size: 24px; margin-bottom: 8px;"></div>
+                    <p>No quizzes yet. Create your first one above.</p>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block" class="quiz-grid" rendered="#{not empty quizBean.quizzes}">
+                    <ui:repeat value="#{quizBean.quizzes}" var="quiz">
+                        <div class="card">
+                            <span class="card-badge">#{empty quiz.subject ? 'General' : quiz.subject}</span>
+                            <h3>#{quiz.title}</h3>
+                            <div class="card-meta">#{quiz.description}</div>
+                            
+                            <div class="card-footer">
+                                <h:commandButton value="Manage Questions" action="quiz-detail" styleClass="btn btn-primary" style="width: 100%;">
+                                    <f:setPropertyActionListener target="#{questionBean.currentQuizId}" value="#{quiz.id}" />
+                                </h:commandButton>
+                                
+                                <div class="card-footer-actions">
+                                    <h:commandButton value="Host Live" action="#{dashboardBean.makeLive(quiz)}" styleClass="btn btn-success" style="background-color: #10b981; color: white;" />
+                                    <h:commandButton value="Edit" action="#{quizBean.prepareEdit(quiz)}" styleClass="btn btn-secondary" />
+                                    <h:commandButton value="Delete" action="#{quizBean.deleteQuiz(quiz.id)}" styleClass="btn btn-danger" onclick="return confirm('Are you sure you want to delete this quiz?');" />
+                                </div>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </h:panelGroup>
+            </h:form>
+        </main>
+    </div>
+
+</h:body>
+</html>

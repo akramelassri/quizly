@@ -9,8 +9,8 @@ import jakarta.inject.Named;
 import java.io.IOException;
 import java.util.Optional;
 
-import com.example.quizly.dao.ProfDAO;
-import com.example.quizly.models.Prof;
+import com.example.quizly.dao.TeacherDAO;
+import com.example.quizly.models.Teacher;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
@@ -22,9 +22,10 @@ public class LoginBean {
     private String firebaseToken;
 
     @Inject
-    private ProfSession profSession;
+    private TeacherDAO teacherDAO;
+
     @Inject
-    private ProfDAO profDAO;
+    private TeacherSession teacherSession;
 
     public String getFirebaseToken() {
         return firebaseToken;
@@ -38,38 +39,35 @@ public class LoginBean {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
 
-        // 1. (Optional) You can use the Firebase Admin SDK here to double-verify the
-        // token
-        // if you want to be extra secure, just like we did in the REST filter.
-
         try {
-            // 2. Decode the token to get the real email from Google
+            // 1. Decode the token to get the real email and name from Google
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
 
-            Optional<Prof> existingProf = profDAO.findByEmail(decodedToken.getEmail());
+            // 2. Check if the Teacher exists in Postgres
+            Optional<Teacher> existingTeacher = teacherDAO.findByEmail(decodedToken.getEmail());
 
-            if (existingProf.isEmpty()) {
+            if (existingTeacher.isEmpty()) {
                 // 3. If they are brand new, save them to Postgres!
                 // Notice we DO NOT save a password. Firebase handles that.
-                Prof newProf = new Prof();
-                newProf.setEmail(decodedToken.getEmail());
-                newProf.setName(decodedToken.getName());
-                // newProf.setRole("PROFESSOR"); // Set any default roles here
+                Teacher newTeacher = new Teacher();
+                newTeacher.setEmail(decodedToken.getEmail());
+                newTeacher.setName(decodedToken.getName());
 
-                profDAO.save(newProf);
+                teacherDAO.save(newTeacher);
             }
 
-            // 3. FILL THE BUCKET!
-            // Now the server will remember this specific Professor globally.
-            profSession.setEmail(decodedToken.getEmail());
-            profSession.setName(decodedToken.getName());
-            profSession.setFirebaseToken(firebaseToken);
+            // 4. FILL THE BUCKET!
+            // Now the server will remember this specific Teacher globally for this session.
+            teacherSession.setEmail(decodedToken.getEmail());
+            teacherSession.setName(decodedToken.getName());
+            teacherSession.setFirebaseToken(firebaseToken);
 
-            // 4. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/prof/dashboard.xhtml");
+            // 5. Send them to the Dashboard
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/quizzes.xhtml");
 
         } catch (Exception e) {
             // Token was fake or expired
+            e.printStackTrace(); // Good for debugging if Firebase fails
             externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml?error=true");
         }
     }

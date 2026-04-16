@@ -1,11 +1,11 @@
 package com.example.quizly.dao;
 
 import com.example.quizly.models.Quiz;
+import com.example.quizly.models.Teacher;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -55,9 +55,22 @@ public class QuizDAO implements DAO<Quiz, Long> {
     public List<Quiz> findByTeacherEmail(String email) {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT q FROM Quiz q WHERE q.teacher.email = :email ORDER BY q.createdAt DESC", Quiz.class)
-                     .setParameter("email", email)
-                     .getResultList();
+            return em
+                    .createQuery("SELECT q FROM Quiz q WHERE q.teacher.email = :email ORDER BY q.createdAt DESC",
+                            Quiz.class)
+                    .setParameter("email", email)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Quiz> findByTeacher(Teacher teacher) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT q FROM Quiz q WHERE q.teacher = :teacher", Quiz.class)
+                    .setParameter("teacher", teacher)
+                    .getResultList();
         } finally {
             em.close();
         }

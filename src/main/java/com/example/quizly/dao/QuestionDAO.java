@@ -1,11 +1,11 @@
 package com.example.quizly.dao;
 
 import com.example.quizly.models.Question;
+import com.example.quizly.models.Quiz;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +64,19 @@ public class QuestionDAO implements DAO<Question, Long> {
                 em.getTransaction().rollback();
             }
             throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Question> findByQuiz(Quiz quiz) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.choices WHERE q.quiz = :quiz",
+                    Question.class)
+                    .setParameter("quiz", quiz)
+                    .getResultList();
         } finally {
             em.close();
         }

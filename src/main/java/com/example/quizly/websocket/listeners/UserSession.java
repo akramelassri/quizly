@@ -2,7 +2,6 @@ package com.example.quizly.websocket.listeners;
 
 import java.io.IOException;
 
-import com.example.quizly.websocket.EventListener;
 import jakarta.websocket.Session;
 
 public class UserSession implements EventListener {

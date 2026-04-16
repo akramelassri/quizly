@@ -1,7 +1,7 @@
 package com.example.quizly.dao;
 
 
-import com.example.quizly.models.Prof;
+import com.example.quizly.models.Teacher;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,15 +12,15 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 
 @RequestScoped
-public class ProfDAO implements DAO<Prof, Long> {
+public class TeacherDAO implements DAO<Teacher, Long> {
     @Inject
     private EntityManagerFactory emf;
     @Override
-    public void save(Prof newProf) {
+    public void save(Teacher newTeacher) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(newProf);
+            em.persist(newTeacher);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -33,10 +33,10 @@ public class ProfDAO implements DAO<Prof, Long> {
     }
 
     @Override
-    public Optional<Prof> findById(Long id) {
+    public Optional<Teacher> findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(Prof.class, id));
+            return Optional.ofNullable(em.find(Teacher.class, id));
         } catch (Exception e) {
             throw e;
         } finally {
@@ -45,10 +45,10 @@ public class ProfDAO implements DAO<Prof, Long> {
     }
 
     @Override
-    public List<Prof> findAll() {
+    public List<Teacher> findAll() {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT p FROM Prof p", Prof.class).getResultList();
+            return em.createQuery("SELECT p FROM Teacher p", Teacher.class).getResultList();
         } catch (Exception e) {
             throw e;
         } finally {
@@ -56,10 +56,10 @@ public class ProfDAO implements DAO<Prof, Long> {
         }
     }
 
-    public Optional<Prof> findByEmail(String email) {
+    public Optional<Teacher> findByEmail(String email) {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.createQuery("SELECT p FROM Prof p WHERE p.email = :email", Prof.class)
+            return em.createQuery("SELECT p FROM Teacher p WHERE p.email = :email", Teacher.class)
                 .setParameter("email", email)
                 .getResultStream()
                 .findFirst();
@@ -71,11 +71,11 @@ public class ProfDAO implements DAO<Prof, Long> {
     }
 
     @Override
-    public void update(Prof updatedProf) {
+    public void update(Teacher updatedTeacher) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(updatedProf);
+            em.merge(updatedTeacher);
             em.getTransaction().commit();
             
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class ProfDAO implements DAO<Prof, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            Prof p = em.find(Prof.class, id);
+            Teacher p = em.find(Teacher.class, id);
             if (p != null) {
                 em.remove(p);
             }

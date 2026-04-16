@@ -3,6 +3,7 @@ package com.example.quizly.models;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
+import com.example.quizly.models.*;
 
 @Entity
 @Table(name = "quizzes")
@@ -13,8 +14,8 @@ public class Quiz {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "prof_id", nullable = false)
-    private Prof teacher;
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private Teacher teacher;
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -28,22 +29,22 @@ public class Quiz {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
-    @OneToMany(mappedBy = "quiz")
+    // FIX: Added Cascade and Orphan Removal
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
 
-    @OneToMany(mappedBy = "quiz")
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Session> sessions;
-
 
     public Long getId() {
         return id;
     }
 
-    public Prof getTeacher() {
+    public Teacher getTeacher() {
         return teacher;
     }
 
-    public void setTeacher(Prof teacher) {
+    public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
     }
 

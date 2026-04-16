@@ -1,11 +1,11 @@
 package com.example.quizly.dao;
 
 import com.example.quizly.models.Choice;
+import com.example.quizly.models.Question;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +16,7 @@ public class ChoiceDAO implements DAO<Choice, Long> {
     private EntityManagerFactory emf;
 
     @Override
+
     public void save(Choice newChoice) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -52,17 +53,29 @@ public class ChoiceDAO implements DAO<Choice, Long> {
         }
     }
 
+    public List<Choice> findByQuestion(Question question) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT c FROM Choice c WHERE c.question = :question",
+                    Choice.class)
+                    .setParameter("question", question)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     @Override
-    public void update(Choice updatedChoice) {
+    public void update(Choice choice) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(updatedChoice);
+            em.merge(choice);
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
+            if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            }
             throw e;
         } finally {
             em.close();

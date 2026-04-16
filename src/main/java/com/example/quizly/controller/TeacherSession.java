@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 @Named
 @SessionScoped
-public class ProfSession implements Serializable {
+public class TeacherSession implements Serializable {
 
     private String email;
     private String name;

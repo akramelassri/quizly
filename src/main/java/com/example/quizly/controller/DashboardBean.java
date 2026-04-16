@@ -27,7 +27,7 @@ public class DashboardBean implements Serializable {
     private String generatedJoinCode;
 
     @Inject
-    private ProfSession profSession;
+    private TeacherSession teacherSession;
 
     @Inject
     private QuizDAO quizDAO;
@@ -37,8 +37,8 @@ public class DashboardBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        if (profSession != null && profSession.getEmail() != null) {
-            profQuizzes = quizDAO.findByTeacherEmail(profSession.getEmail());
+        if (teacherSession != null && teacherSession.getEmail() != null) {
+            profQuizzes = quizDAO.findByTeacherEmail(teacherSession.getEmail());
         }
     }
 
@@ -54,24 +54,24 @@ public class DashboardBean implements Serializable {
     }
 
     public String getWelcomeMessage() {
-        String name = profSession.getName();
-        welcomeMessage = "Welcome back, " + (name != null ? name : profSession.getEmail()) + "!";
+        String name = teacherSession.getName();
+        welcomeMessage = "Welcome back, " + (name != null ? name : teacherSession.getEmail()) + "!";
         return welcomeMessage;
     }
 
     public String makeLive(Quiz quiz) {
         // Generate a simple 6-character random code
         String code = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        
+
         Session session = new Session();
         session.setQuiz(quiz);
         session.setJoinCode(code);
         session.setStatus(SessionStatus.WAITING);
         session.setStartedAt(new Timestamp(System.currentTimeMillis()));
-        
+
         sessionDAO.save(session);
-        
-        return "/prof/host-lobby?faces-redirect=true&pin=" + code;
+
+        return "/teacher/host-lobby?faces-redirect=true&pin=" + code;
     }
 
     public List<Quiz> getProfQuizzes() {

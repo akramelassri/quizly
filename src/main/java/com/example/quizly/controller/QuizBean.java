@@ -1,66 +1,125 @@
 package com.example.quizly.controller;
 
 import com.example.quizly.models.Choice;
-import com.example.quizly.models.Prof;
 import com.example.quizly.models.Question;
 import com.example.quizly.models.Quiz;
-import com.example.quizly.dao.ChoiceDAO;
-import com.example.quizly.dao.ProfDAO;
-import com.example.quizly.dao.QuestionDAO;
+import com.example.quizly.models.Teacher;
 import com.example.quizly.dao.QuizDAO;
+import com.example.quizly.dao.TeacherDAO;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Named
 @ViewScoped
 public class QuizBean implements Serializable {
 
-    private Quiz quiz;
-
     @Inject
     private QuizDAO quizDAO;
     @Inject
-    private QuestionDAO questionDAO;
+    private TeacherDAO teacherDAO;
     @Inject
-    private ChoiceDAO choiceDAO;
-    @Inject
-    private ProfDAO profDAO;
-    @Inject
-    private ProfSession profSession;
+    private TeacherSession teacherSession;
+
+    private List<Quiz> quizzes;
+    private Quiz currentQuiz;
 
     public QuizBean() {
-        quiz = new Quiz();
-        quiz.setQuestions(new ArrayList<>());
+        resetCurrentQuiz();
     }
 
-    public Quiz getQuiz() {
-        return quiz;
+    @PostConstruct
+    public void init() {
+        loadQuizzes();
     }
 
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
+    private void resetCurrentQuiz() {
+        currentQuiz = new Quiz();
+        currentQuiz.setQuestions(new ArrayList<>());
     }
+
+    // ==========================================
+    // DASHBOARD & CRUD LOGIC (From develop branch)
+    // ==========================================
+
+    public void loadQuizzes() {
+        Optional<Teacher> teacher = teacherDAO.findByEmail(teacherSession.getEmail());
+        teacher.ifPresent(t -> quizzes = quizDAO.findByTeacher(t));
+    }
+
+    public String createQuiz() {
+        Optional<Teacher> teacher = teacherDAO.findByEmail(teacherSession.getEmail());
+        if (teacher.isPresent()) {
+            currentQuiz.setTeacher(teacher.get());
+            currentQuiz.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            quizDAO.save(currentQuiz);
+            resetCurrentQuiz();
+            loadQuizzes();
+        }
+        return null;
+    }
+
+    public void prepareEdit(Quiz quiz) {
+        this.currentQuiz = quiz;
+        if (this.currentQuiz.getQuestions() == null) {
+            this.currentQuiz.setQuestions(new ArrayList<>());
+        }
+    }
+
+    public String updateQuiz() {
+        quizDAO.update(currentQuiz);
+        resetCurrentQuiz();
+        loadQuizzes();
+        return null;
+    }
+
+    public String cancelEdit() {
+        resetCurrentQuiz();
+        return null;
+    }
+
+    public void deleteQuiz(Long id) {
+        quizDAO.delete(id);
+        loadQuizzes();
+    }
+
+    public void logout() throws IOException {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        externalContext.invalidateSession();
+        externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml");
+    }
+
+    // ==========================================
+    // COMPLEX BUILDER LOGIC (From your local branch)
+    // ==========================================
 
     public void addQuestion() {
         Question q = new Question();
         q.setChoices(new ArrayList<>());
-        q.setQuiz(quiz);
+        q.setQuiz(currentQuiz);
 
-        // Ensure the list is initialized
-        if (quiz.getQuestions() == null) {
-            quiz.setQuestions(new ArrayList<>());
+        if (currentQuiz.getQuestions() == null) {
+            currentQuiz.setQuestions(new ArrayList<>());
         }
-        quiz.getQuestions().add(q);
+        currentQuiz.getQuestions().add(q);
     }
 
     public void removeQuestion(Question q) {
-        if (quiz.getQuestions() != null) {
-            quiz.getQuestions().remove(q);
+        if (currentQuiz.getQuestions() != null) {
+            currentQuiz.getQuestions().remove(q);
         }
     }
 
@@ -82,36 +141,58 @@ public class QuizBean implements Serializable {
     }
 
     public String saveQuiz() {
-        quiz.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        currentQuiz.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         System.out.println("------------------------------------------------");
-        System.out.println("prof: " + profSession.getEmail());
+        System.out.println("prof: " + teacherSession.getEmail());
 
         // Find the current Prof from DB based on session email
-        Prof currentProf = profDAO.findByEmail(profSession.getEmail()).orElse(null);
-        if (currentProf == null) {
+        Teacher currentTeacher = teacherDAO.findByEmail(teacherSession.getEmail()).orElse(null);
+        if (currentTeacher == null) {
             // Handle error: not logged in properly or user not found
             return "/login?faces-redirect=true";
         }
-        quiz.setTeacher(currentProf);
+        currentQuiz.setTeacher(currentTeacher);
 
-        // 1. Save standard quiz
-        quizDAO.save(quiz);
-
-        // 2. Save all questions and their choices sequentially
-        if (quiz.getQuestions() != null) {
-            for (Question q : quiz.getQuestions()) {
-                q.setQuiz(quiz); // Ensure association
-                questionDAO.save(q);
-
+        // 1. Ensure all associations are correctly set before persisting so that Cascade works
+        if (currentQuiz.getQuestions() != null) {
+            for (Question q : currentQuiz.getQuestions()) {
+                q.setQuiz(currentQuiz); // Ensure bidirectional association
+                
                 if (q.getChoices() != null) {
                     for (Choice c : q.getChoices()) {
-                        c.setQuestion(q); // Ensure association
-                        choiceDAO.save(c);
+                        c.setQuestion(q); // Ensure bidirectional association
                     }
                 }
             }
         }
 
-        return "/prof/dashboard?faces-redirect=true";
+        // 2. Save standard quiz (and its questions/choices automatically due to CascadeType.ALL)
+        quizDAO.save(currentQuiz);
+
+        return "/teacher/dashboard?faces-redirect=true";
+    }
+    // ==========================================
+    // GETTERS & SETTERS
+    // ==========================================
+
+    public List<Quiz> getQuizzes() {
+        return quizzes;
+    }
+
+    public Quiz getCurrentQuiz() {
+        return currentQuiz;
+    }
+
+    public void setCurrentQuiz(Quiz currentQuiz) {
+        this.currentQuiz = currentQuiz;
+    }
+
+    // Keeping getQuiz() and setQuiz() as aliases so your XHTML pages don't break!
+    public Quiz getQuiz() {
+        return currentQuiz;
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.currentQuiz = quiz;
     }
 }

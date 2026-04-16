@@ -5,7 +5,7 @@
              version="3.1">
     <persistence-unit name="quizlyPU">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>com.example.quizly.models.Prof</class>
+        <class>com.example.quizly.models.Teacher</class>
         <class>com.example.quizly.models.Quiz</class>
         <class>com.example.quizly.models.Question</class>
         <class>com.example.quizly.models.Choice</class>
@@ -16,8 +16,8 @@
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/quizly_db" />
-            <property name="jakarta.persistence.jdbc.user" value="mac" />
-            <property name="jakarta.persistence.jdbc.password" value="Anasgamer@2" />
+            <property name="jakarta.persistence.jdbc.user" value="username" />
+            <property name="jakarta.persistence.jdbc.password" value="password" />
             <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.hbm2ddl.auto" value="update" />
         </properties>

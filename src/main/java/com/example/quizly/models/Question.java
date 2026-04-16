@@ -17,8 +17,8 @@ public class Question {
 
     @Column(name = "question_text", columnDefinition = "TEXT", nullable = false)
     private String questionText;
-
-    @OneToMany(mappedBy = "question")
+    // FIX: Added Cascade and Orphan Removal
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Choice> choices;
 
     public Long getId() {

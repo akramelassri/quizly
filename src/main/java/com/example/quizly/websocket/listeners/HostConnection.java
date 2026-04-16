@@ -3,8 +3,6 @@ package com.example.quizly.websocket.listeners;
 import jakarta.websocket.Session;
 import java.io.IOException;
 
-import com.example.quizly.websocket.EventListener;
-
 // This lives ONLY in the WebSocket universe
 public class HostConnection implements EventListener {
     private Session session;
