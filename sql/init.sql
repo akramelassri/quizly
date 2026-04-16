@@ -1,4 +1,5 @@
 CREATE TABLE quizzes (
+    -- i know this is mysql and not postgresql but no problem for now
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     teacher_id BIGINT NOT NULL,
     title VARCHAR(200) NOT NULL,

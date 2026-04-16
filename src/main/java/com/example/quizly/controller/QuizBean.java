@@ -36,6 +36,7 @@ public class QuizBean implements Serializable {
     }
 
     public String createQuiz() {
+        // teacher session works but teacherdao can't find user weird
         Optional<Teacher> teacher = teacherDAO.findByEmail(teacherSession.getEmail());
         if (teacher.isPresent()) {
             currentQuiz.setTeacher(teacher.get());
@@ -43,6 +44,8 @@ public class QuizBean implements Serializable {
             quizDAO.save(currentQuiz);
             currentQuiz = new Quiz();
             loadQuizzes();
+        } else {
+            System.out.println("there is error here teacher not found");
         }
         return null;
     }
