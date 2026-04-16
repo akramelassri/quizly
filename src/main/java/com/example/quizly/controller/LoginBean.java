@@ -6,8 +6,11 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+import java.util.Optional;
 import java.io.IOException;
 
+import com.example.quizly.dao.TeacherDAO;
+import com.example.quizly.models.Teacher;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
@@ -19,7 +22,9 @@ public class LoginBean {
     private String firebaseToken;
 
     @Inject
-    private ProfSession profSession;
+    private TeacherDAO teacherDAO;
+    @Inject
+    private TeacherSession teacherSession;
 
     public String getFirebaseToken() {
         return firebaseToken;
@@ -41,13 +46,26 @@ public class LoginBean {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
             
             // 3. FILL THE BUCKET! 
-            // Now the server will remember this specific Professor globally.
-            profSession.setEmail(decodedToken.getEmail());
-            profSession.setName(decodedToken.getName());
-            profSession.setFirebaseToken(firebaseToken);
+            // Now the server will remember this specific Teacheressor globally.
+            teacherSession.setEmail(decodedToken.getEmail());
+            teacherSession.setName(decodedToken.getName());
+            teacherSession.setFirebaseToken(firebaseToken);
+            
+            Optional<Teacher> existingTeacher = teacherDAO.findByEmail(teacherSession.getEmail());
+
+            if (existingTeacher.isEmpty()) {
+                // 3. If they are brand new, save them to Postgres!
+                // Notice we DO NOT save a password. Firebase handles that.
+                Teacher newTeacher = new Teacher();
+                newTeacher.setEmail(teacherSession.getEmail());
+                newTeacher.setName(teacherSession.getName()); 
+                // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
+                
+                teacherDAO.save(newTeacher);
+            }
 
             // 4. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/prof/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/teacher/dashboard.xhtml");
 
         } catch (Exception e) {
             // Token was fake or expired

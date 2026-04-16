@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:c="jakarta.tags.core">
+<h:head>
+    <title>Quizly - Questions</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #F8F9FA; margin: 0; padding: 40px; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 860px; margin: 0 auto; }
+        h1 { color: #111; margin-bottom: 5px; }
+        h3 { color: #333; margin-bottom: 15px; font-size: 16px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
+        input[type="text"], textarea { padding: 10px 12px; border: 1px solid #E0E0E0; border-radius: 6px; font-size: 14px; background: #F5F5F5; width: 100%; box-sizing: border-box; }
+        .form-group { margin-bottom: 15px; }
+        .choice-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+        .choice-row input[type="text"] { flex: 1; }
+        .btn-primary { padding: 10px 20px; background-color: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-primary:hover { background-color: #004494; }
+        .btn-danger { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-secondary { padding: 6px 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-link { padding: 6px 12px; background: none; color: #0056b3; border: 1px solid #0056b3; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-add-choice { padding: 6px 14px; background: none; color: #0056b3; border: 1px dashed #0056b3; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
+        .question-card { background: #F8F9FA; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+        .question-card p { margin: 0 0 10px 0; font-weight: bold; color: #111; }
+        .choice-item { font-size: 13px; color: #555; padding: 3px 0; }
+        .choice-item.correct { color: #1a7a3f; font-weight: bold; }
+        .actions { display: flex; gap: 8px; margin-top: 10px; }
+        .back-link { color: #0056b3; font-size: 14px; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .divider { border: none; border-top: 1px solid #eee; margin: 30px 0; }
+        .empty { color: #999; font-size: 14px; }
+    </style>
+</h:head>
+<h:body>
+    <div class="container">
+        <h:link value="← Back to Quizzes" outcome="quizzes" styleClass="back-link" />
+        <h1>#{questionBean.currentQuiz.title}</h1>
+        <p class="subtitle">#{questionBean.currentQuiz.subject}</p>
+
+        <h:form id="questionForm">
+            <h3>#{not empty questionBean.currentQuestion.id ? 'Edit Question' : 'Add a Question'}</h3>
+            <div class="form-group">
+                <label>Question Text</label>
+                <h:inputTextarea value="#{questionBean.currentQuestion.questionText}" rows="2" required="true" />
+            </div>
+
+            <label>Choices</label>
+            <c:forEach items="#{questionBean.currentChoices}" var="choice" varStatus="s">
+                <div class="choice-row">
+                    <h:inputText value="#{choice.choiceText}" placeholder="Choice text" />
+                    <h:selectBooleanCheckbox value="#{choice.correct}" />
+                    <span style="font-size:12px; color:#555;">Correct</span>
+                    <h:commandButton value="✕" styleClass="btn-danger" action="#{questionBean.removeChoiceField(s.index)}" />
+                </div>
+            </c:forEach>
+
+            <h:commandButton value="+ Add Choice" styleClass="btn-add-choice" action="#{questionBean.addChoiceField}" />
+
+            <div style="margin-top: 20px;">
+                <c:choose>
+                    <c:when test="${not empty questionBean.currentQuestion.id}">
+                        <h:commandButton value="Save Changes" styleClass="btn-primary" action="#{questionBean.updateQuestion}" style="margin-right: 10px;" />
+                        <h:commandButton value="Cancel" styleClass="btn-secondary" action="#{questionBean.cancelEdit}" />
+                    </c:when>
+                    <c:otherwise>
+                        <h:commandButton value="Save Question" styleClass="btn-primary" action="#{questionBean.addQuestion}" />
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </h:form>
+
+        <hr class="divider" />
+
+        <h3>Questions (#{questionBean.questions.size()})</h3>
+        <c:choose>
+            <c:when test="${empty questionBean.questions}">
+                <p class="empty">No questions yet.</p>
+            </c:when>
+            <c:otherwise>
+                <h:form>
+                    <c:forEach items="#{questionBean.questions}" var="question" varStatus="s">
+                        <div class="question-card">
+                            <p>#{s.index + 1}. #{question.questionText}</p>
+                            <c:forEach items="#{question.choices}" var="choice">
+                                <div class="choice-item #{choice.correct ? 'correct' : ''}">
+                                    #{choice.correct ? '✓' : '○'} #{choice.choiceText}
+                                </div>
+                            </c:forEach>
+                            <div class="actions">
+                                <h:commandButton value="Edit" styleClass="btn-secondary" action="#{questionBean.prepareEdit(question)}" />
+                                <h:commandButton value="Delete" styleClass="btn-danger" action="#{questionBean.deleteQuestion(question.id)}" />
+                            </div>
+                        </div>
+                    </c:forEach>
+                </h:form>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</h:body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:c="jakarta.tags.core">
+<h:head>
+    <title>Quizly - My Quizzes</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #F8F9FA; margin: 0; padding: 40px; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; }
+        h1 { color: #111; margin-bottom: 5px; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        input[type="text"], textarea { padding: 10px 12px; border: 1px solid #E0E0E0; border-radius: 6px; font-size: 14px; background: #F5F5F5; width: 100%; box-sizing: border-box; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { padding: 10px 20px; background-color: #0056b3; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-primary:hover { background-color: #004494; }
+        .btn-danger { padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-secondary { padding: 6px 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-link { padding: 6px 12px; background: none; color: #0056b3; border: 1px solid #0056b3; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; font-size: 11px; text-transform: uppercase; color: #888; padding: 8px 10px; border-bottom: 2px solid #eee; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333; }
+        .actions { display: flex; gap: 8px; }
+        .empty { color: #999; font-size: 14px; padding: 20px 0; }
+        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .nav a { color: #0056b3; font-size: 14px; text-decoration: none; }
+    </style>
+</h:head>
+<h:body>
+    <div class="container">
+        <div class="nav">
+            <h1>My Quizzes</h1>
+            <h:form>
+                <h:commandButton value="Logout" action="#{dashboardBean.logout}" styleClass="btn-secondary" />
+            </h:form>
+        </div>
+        <p class="subtitle">Create and manage your quizzes.</p>
+
+        <h:form>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <h:inputText value="#{quizBean.currentQuiz.title}" required="true" />
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <h:inputText value="#{quizBean.currentQuiz.subject}" />
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Description</label>
+                <h:inputTextarea value="#{quizBean.currentQuiz.description}" rows="2" />
+            </div>
+            
+            <c:choose>
+                <c:when test="${not empty quizBean.currentQuiz.id}">
+                    <h:commandButton value="Save Changes" action="#{quizBean.updateQuiz}" styleClass="btn-primary" style="margin-right: 10px;" />
+                    <h:commandButton value="Cancel" action="#{quizBean.cancelEdit}" styleClass="btn-secondary" />
+                </c:when>
+                <c:otherwise>
+                    <h:commandButton value="+ Create Quiz" action="#{quizBean.createQuiz}" styleClass="btn-primary" />
+                </c:otherwise>
+            </c:choose>
+        </h:form>
+
+        <h:form style="margin-top: 30px;">
+            <c:choose>
+                <c:when test="${empty quizBean.quizzes}">
+                    <p class="empty">No quizzes yet. Create your first one above.</p>
+                </c:when>
+                <c:otherwise>
+                    <table>
+                        <tr>
+                            <th>Title</th>
+                            <th>Subject</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                        <c:forEach items="#{quizBean.quizzes}" var="quiz">
+                            <tr>
+                                <td>#{quiz.title}</td>
+                                <td>#{quiz.subject}</td>
+                                <td>#{quiz.createdAt}</td>
+                                <td>
+                                    <div class="actions">
+                                        <h:commandButton value="Questions" styleClass="btn-link" action="quiz-detail">
+                                            <f:setPropertyActionListener target="#{questionBean.currentQuizId}" value="#{quiz.id}" />
+                                        </h:commandButton>
+                                        <h:commandButton value="Edit" styleClass="btn-secondary" action="#{quizBean.prepareEdit(quiz)}" />
+                                        <h:commandButton value="Delete" styleClass="btn-danger" action="#{quizBean.deleteQuiz(quiz.id)}" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                </c:otherwise>
+            </c:choose>
+        </h:form>
+    </div>
+</h:body>
+</html>

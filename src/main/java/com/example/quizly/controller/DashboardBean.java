@@ -15,7 +15,7 @@ public class DashboardBean {
     private String welcomeMessage;
 
     @Inject
-    private ProfSession profSession;
+    private TeacherSession teacherSession;
 
 
     public void logout() throws IOException {
@@ -30,8 +30,8 @@ public class DashboardBean {
     }
 
     public String getWelcomeMessage() {
-        String name = profSession.getName();
-        welcomeMessage = "Welcome back, " + (name != null ? name : profSession.getEmail()) + "!";
+        String name = teacherSession.getName();
+        welcomeMessage = "Welcome back, " + (name != null ? name : teacherSession.getEmail()) + "!";
         return welcomeMessage;
     }
 }
