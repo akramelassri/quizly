@@ -7,7 +7,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import java.io.IOException;
+import java.util.Optional;
 
+import com.example.quizly.dao.ProfDAO;
+import com.example.quizly.models.Prof;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
@@ -20,6 +23,8 @@ public class LoginBean {
 
     @Inject
     private ProfSession profSession;
+    @Inject
+    private ProfDAO profDAO;
 
     public String getFirebaseToken() {
         return firebaseToken;
@@ -33,14 +38,28 @@ public class LoginBean {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
 
-        // 1. (Optional) You can use the Firebase Admin SDK here to double-verify the token
+        // 1. (Optional) You can use the Firebase Admin SDK here to double-verify the
+        // token
         // if you want to be extra secure, just like we did in the REST filter.
 
         try {
             // 2. Decode the token to get the real email from Google
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
-            
-            // 3. FILL THE BUCKET! 
+
+            Optional<Prof> existingProf = profDAO.findByEmail(decodedToken.getEmail());
+
+            if (existingProf.isEmpty()) {
+                // 3. If they are brand new, save them to Postgres!
+                // Notice we DO NOT save a password. Firebase handles that.
+                Prof newProf = new Prof();
+                newProf.setEmail(decodedToken.getEmail());
+                newProf.setName(decodedToken.getName());
+                // newProf.setRole("PROFESSOR"); // Set any default roles here
+
+                profDAO.save(newProf);
+            }
+
+            // 3. FILL THE BUCKET!
             // Now the server will remember this specific Professor globally.
             profSession.setEmail(decodedToken.getEmail());
             profSession.setName(decodedToken.getName());
