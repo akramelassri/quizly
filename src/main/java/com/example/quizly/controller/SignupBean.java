@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequestScoped
 public class SignupBean {
     private String firebaseToken;
-    private String TeacherName;
+    private String teacherName;
 
     @Inject
     private TeacherDAO teacherDAO;
@@ -43,14 +43,14 @@ public class SignupBean {
                 // Notice we DO NOT save a password. Firebase handles that.
                 Teacher newTeacher = new Teacher();
                 newTeacher.setEmail(email);
-                newTeacher.setName(TeacherName); 
+                newTeacher.setName(teacherName); 
                 // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
                 
                 teacherDAO.save(newTeacher);
             }
 
             teacherSession.setEmail(email);
-            teacherSession.setName(TeacherName);
+            teacherSession.setName(teacherName);
             teacherSession.setFirebaseToken(firebaseToken);
 
             // 5. Send them to the Dashboard
@@ -66,6 +66,6 @@ public class SignupBean {
     public String getFirebaseToken() { return firebaseToken; }
     public void setFirebaseToken(String firebaseToken) { this.firebaseToken = firebaseToken; }
     
-    public String getTeacherName() { return TeacherName; }
-    public void setTeacherName(String TeacherName) { this.TeacherName = TeacherName; }
+    public String getTeacherName() { return teacherName; }
+    public void setTeacherName(String teacherName) { this.teacherName = teacherName; }
 }

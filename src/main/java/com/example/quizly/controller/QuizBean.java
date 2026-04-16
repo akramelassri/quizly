@@ -6,8 +6,12 @@ import com.example.quizly.models.Quiz;
 import com.example.quizly.models.Teacher;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -70,4 +74,15 @@ public class QuizBean implements Serializable {
     public List<Quiz> getQuizzes() { return quizzes; }
     public Quiz getCurrentQuiz() { return currentQuiz; }
     public void setCurrentQuiz(Quiz currentQuiz) { this.currentQuiz = currentQuiz; }
+
+        public void logout() throws IOException {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
+
+        // 1. Destroy the JSF session completely
+        externalContext.invalidateSession();
+
+        // 2. Redirect back to login
+        externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml");
+    }
 }
