@@ -40,7 +40,6 @@ public class QuestionBean implements Serializable {
     public void addQuestion() {
         currentQuestion.setQuiz(currentQuiz);
         questionDAO.save(currentQuestion);
-        // save choices
         for (Choice choice : currentChoices) {
             choice.setQuestion(currentQuestion);
             choiceDAO.save(choice);
@@ -65,7 +64,16 @@ public class QuestionBean implements Serializable {
                 choiceDAO.update(choice);
             }
         }
+        // FIX: Reset form after edit
+        currentQuestion = new Question();
+        currentChoices = new ArrayList<>();
         questions = questionDAO.findByQuiz(currentQuiz);
+    }
+
+    // FIX: Added cancel method
+    public void cancelEdit() {
+        currentQuestion = new Question();
+        currentChoices = new ArrayList<>();
     }
 
     public void deleteQuestion(Long id) {
@@ -85,7 +93,6 @@ public class QuestionBean implements Serializable {
         }
     }
 
-    // getters and setters
     public Long getCurrentQuizId() { return currentQuizId; }
     public void setCurrentQuizId(Long currentQuizId) { loadForQuiz(currentQuizId); }
     public Quiz getCurrentQuiz() { return currentQuiz; }

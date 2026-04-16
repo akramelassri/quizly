@@ -26,9 +26,7 @@ public class QuizBean implements Serializable {
     private Quiz currentQuiz = new Quiz();
 
     @PostConstruct
-    public void init() {
-        loadQuizzes();
-    }
+    public void init() { loadQuizzes(); }
 
     public void loadQuizzes() {
         Optional<Teacher> teacher = teacherDAO.findByEmail(teacherSession.getEmail());
@@ -36,7 +34,6 @@ public class QuizBean implements Serializable {
     }
 
     public String createQuiz() {
-        // teacher session works but teacherdao can't find user weird
         Optional<Teacher> teacher = teacherDAO.findByEmail(teacherSession.getEmail());
         if (teacher.isPresent()) {
             currentQuiz.setTeacher(teacher.get());
@@ -44,8 +41,6 @@ public class QuizBean implements Serializable {
             quizDAO.save(currentQuiz);
             currentQuiz = new Quiz();
             loadQuizzes();
-        } else {
-            System.out.println("there is error here teacher not found");
         }
         return null;
     }
@@ -56,8 +51,14 @@ public class QuizBean implements Serializable {
 
     public String updateQuiz() {
         quizDAO.update(currentQuiz);
-        currentQuiz = new Quiz();
+        currentQuiz = new Quiz(); // Reset form
         loadQuizzes();
+        return null;
+    }
+
+    // FIX: Added cancel method
+    public String cancelEdit() {
+        currentQuiz = new Quiz();
         return null;
     }
 

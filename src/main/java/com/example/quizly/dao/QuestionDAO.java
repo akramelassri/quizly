@@ -54,7 +54,7 @@ public class QuestionDAO implements DAO<Question, Long> {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(
-                "SELECT q FROM Question q WHERE q.quiz = :quiz ORDER BY q.orderIndex", 
+                "SELECT q FROM Question q WHERE q.quiz = :quiz ORDER BY q.id", 
                 Question.class)
                     .setParameter("quiz", quiz)
                     .getResultList();
