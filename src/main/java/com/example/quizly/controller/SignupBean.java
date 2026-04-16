@@ -22,7 +22,7 @@ public class SignupBean {
     private String TeacherName;
 
     @Inject
-    private TeacherDAO TeacherDAO;
+    private TeacherDAO teacherDAO;
     @Inject
     private TeacherSession teacherSession;
 
@@ -36,7 +36,7 @@ public class SignupBean {
             String email = decodedToken.getEmail();
 
             // 2. Check if this Teacheressor already exists in your Postgres DB
-            Optional<Teacher> existingTeacher = TeacherDAO.findByEmail(email);
+            Optional<Teacher> existingTeacher = teacherDAO.findByEmail(email);
 
             if (existingTeacher.isEmpty()) {
                 // 3. If they are brand new, save them to Postgres!
@@ -46,7 +46,7 @@ public class SignupBean {
                 newTeacher.setName(TeacherName); 
                 // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
                 
-                TeacherDAO.save(newTeacher);
+                teacherDAO.save(newTeacher);
             }
 
             teacherSession.setEmail(email);
