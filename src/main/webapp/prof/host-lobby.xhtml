@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Quizly - Host Lobby</title>
+    <!-- Extract the PIN from the URL param automatically -->
+    <f:metadata>
+        <f:viewParam name="pin" id="pinParam" />
+    </f:metadata>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #F8F9FA;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .lobby-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .pin-box {
+            background-color: #f1f8ff;
+            border: 2px solid #0366d6;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .pin-box h1 {
+            color: #0366d6;
+            font-size: 48px;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .pin-box p {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .players-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+            min-height: 200px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .player-card {
+            background-color: #e2e3e5;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #383d41;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-start {
+            padding: 15px 40px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
+        }
+
+        .btn-start:hover {
+            background-color: #218838;
+        }
+
+        .btn-start:active {
+            transform: scale(0.98);
+        }
+
+        p.waiting-text {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</h:head>
+<h:body>
+
+    <div class="lobby-container">
+
+        <div class="pin-box">
+            <p>Join at www.quizly.com with Game PIN:</p>
+            <h1 id="displayPin">#{param['pin']}</h1>
+        </div>
+
+        <h2>Waiting for players...</h2>
+        <div class="players-container" id="playersList">
+            <!-- Player cards directly injected via JS -->
+            <p class="waiting-text" id="emptyText">No players have joined yet.</p>
+        </div>
+
+        <button class="btn-start" onclick="startGame()">Start Quiz</button>
+
+        <!-- Connection Status -->
+        <p id="connStatus" style="color:red; font-size: 12px; margin-top:20px;"></p>
+    </div>
+
+    <script>
+        //<![CDATA[
+
+        // 1. Establish constants
+        const pin = "#{param['pin']}";
+        const token = sessionStorage.getItem("quizlyToken");
+        const playersList = document.getElementById("playersList");
+        const emptyText = document.getElementById("emptyText");
+        const connStatus = document.getElementById("connStatus");
+
+        let ws;
+
+        // Ensure we actually have a pin and token before joining
+        if (pin && token) {
+            connectWebSocket();
+        } else {
+            connStatus.innerText = "Error: Missing Game PIN or Validation Token. Please return to dashboard.";
+        }
+
+        function connectWebSocket() {
+            // Determine appropriate websocket protocol based on http/https
+            const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            // Build absolute path to our endpoint
+            const wsPath = wsProtocol + "//" + window.location.host + "#{request.contextPath}/quiz/" + pin;
+
+            ws = new WebSocket(wsPath);
+
+            ws.onopen = function (event) {
+                console.log("Connected to lobby. Sending HOST auth...");
+
+                // Form JSON matching your IncomingMessage.java structure
+                const payload = {
+                    action: "JOIN",
+                    role: "HOST",
+                    firebaseToken: token
+                };
+                ws.send(JSON.stringify(payload));
+            };
+
+            ws.onmessage = function (event) {
+                // IncomingMessage could be from student joins, etc.
+                console.log("Message received: " + event.data);
+
+                try {
+                    const data = JSON.parse(event.data);
+
+                    if (data.action === "PLAYER_JOINED") {
+                        addPlayerToScreen(data.name);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse incoming message", e);
+                }
+            };
+
+            ws.onclose = function (event) {
+                console.log("WebSocket Disconnected.");
+                connStatus.innerText = "Connection lost. Please refresh the page.";
+            };
+
+            ws.onerror = function (error) {
+                console.log("WebSocket Error: ", error);
+            }
+        }
+
+        function addPlayerToScreen(playerName) {
+            // Hide the empty text placeholder
+            if (emptyText) {
+                emptyText.style.display = 'none';
+            }
+
+            // Create a stylish card for the player
+            const card = document.createElement("div");
+            card.className = "player-card";
+            card.innerText = playerName;
+
+            playersList.appendChild(card);
+        }
+
+        function startGame() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                // Send Start command
+                ws.send(JSON.stringify({
+                    action: "START_GAME",
+                    role: "HOST"
+                }));
+                // In the future this might redirect the host to the active question screen!
+                alert("Start Game Command sent to server!");
+            } else {
+                alert("Cannot start game. Waiting for connection...");
+            }
+        }
+
+        //]]>
+    </script>
+</h:body>
+
+</html>
