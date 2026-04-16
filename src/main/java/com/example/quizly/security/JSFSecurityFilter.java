@@ -3,7 +3,7 @@ package com.example.quizly.security;
 import java.io.IOException;
 import jakarta.servlet.Filter;
 
-import com.example.quizly.controller.ProfSession;
+import com.example.quizly.controller.TeacherSession;
 
 import jakarta.inject.Inject;
 import jakarta.servlet.FilterChain;
@@ -15,11 +15,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 
-@WebFilter("/prof/*")
+@WebFilter("/teacher/*")
 public class JSFSecurityFilter implements Filter {
 
     @Inject
-    private ProfSession profSession;
+    private TeacherSession TeacherSession;
 
 
     @Override
@@ -30,7 +30,7 @@ public class JSFSecurityFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
 
         // Check if the user is logged in using our Session Bean
-        if (profSession != null && profSession.isLoggedIn()) {
+        if (TeacherSession != null && TeacherSession.isLoggedIn()) {
             // They are logged in! Let them pass through to the page.
             chain.doFilter(request, response);
         } else {

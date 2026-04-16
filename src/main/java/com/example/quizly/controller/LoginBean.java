@@ -19,7 +19,7 @@ public class LoginBean {
     private String firebaseToken;
 
     @Inject
-    private ProfSession profSession;
+    private TeacherSession teacherSession;
 
     public String getFirebaseToken() {
         return firebaseToken;
@@ -41,13 +41,13 @@ public class LoginBean {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
             
             // 3. FILL THE BUCKET! 
-            // Now the server will remember this specific Professor globally.
-            profSession.setEmail(decodedToken.getEmail());
-            profSession.setName(decodedToken.getName());
-            profSession.setFirebaseToken(firebaseToken);
+            // Now the server will remember this specific Teacheressor globally.
+            teacherSession.setEmail(decodedToken.getEmail());
+            teacherSession.setName(decodedToken.getName());
+            teacherSession.setFirebaseToken(firebaseToken);
 
             // 4. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/prof/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/Teacher/dashboard.xhtml");
 
         } catch (Exception e) {
             // Token was fake or expired

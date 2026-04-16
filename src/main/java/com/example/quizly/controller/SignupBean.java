@@ -1,7 +1,7 @@
 package com.example.quizly.controller;
 
-import com.example.quizly.dao.ProfDAO;
-import com.example.quizly.models.Prof;
+import com.example.quizly.dao.TeacherDAO;
+import com.example.quizly.models.Teacher;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
@@ -19,12 +19,12 @@ import java.util.Optional;
 @RequestScoped
 public class SignupBean {
     private String firebaseToken;
-    private String profName;
+    private String TeacherName;
 
     @Inject
-    private ProfDAO profDAO;
+    private TeacherDAO TeacherDAO;
     @Inject
-    private ProfSession profSession;
+    private TeacherSession TeacherSession;
 
 
     public void completeSignup() throws IOException {
@@ -35,26 +35,26 @@ public class SignupBean {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseToken);
             String email = decodedToken.getEmail();
 
-            // 2. Check if this Professor already exists in your Postgres DB
-            Optional<Prof> existingProf = profDAO.findByEmail(email);
+            // 2. Check if this Teacheressor already exists in your Postgres DB
+            Optional<Teacher> existingTeacher = TeacherDAO.findByEmail(email);
 
-            if (existingProf.isEmpty()) {
+            if (existingTeacher.isEmpty()) {
                 // 3. If they are brand new, save them to Postgres!
                 // Notice we DO NOT save a password. Firebase handles that.
-                Prof newProf = new Prof();
-                newProf.setEmail(email);
-                newProf.setName(profName); 
-                // newProf.setRole("PROFESSOR"); // Set any default roles here
+                Teacher newTeacher = new Teacher();
+                newTeacher.setEmail(email);
+                newTeacher.setName(TeacherName); 
+                // newTeacher.setRole("TeacherESSOR"); // Set any default roles here
                 
-                profDAO.save(newProf);
+                TeacherDAO.save(newTeacher);
             }
 
-            profSession.setEmail(email);
-            profSession.setName(profName);
-            profSession.setFirebaseToken(firebaseToken);
+            TeacherSession.setEmail(email);
+            TeacherSession.setName(TeacherName);
+            TeacherSession.setFirebaseToken(firebaseToken);
 
             // 5. Send them to the Dashboard
-            externalContext.redirect(externalContext.getRequestContextPath() + "/prof/dashboard.xhtml");
+            externalContext.redirect(externalContext.getRequestContextPath() + "/Teacher/dashboard.xhtml");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +66,6 @@ public class SignupBean {
     public String getFirebaseToken() { return firebaseToken; }
     public void setFirebaseToken(String firebaseToken) { this.firebaseToken = firebaseToken; }
     
-    public String getProfName() { return profName; }
-    public void setProfName(String profName) { this.profName = profName; }
+    public String getTeacherName() { return TeacherName; }
+    public void setTeacherName(String TeacherName) { this.TeacherName = TeacherName; }
 }
