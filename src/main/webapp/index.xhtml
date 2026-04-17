@@ -2,55 +2,80 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html">
 <h:head>
-    <title>Quizly</title>
-    <h:outputStylesheet library="css" name="base.css" />
+    <title>Quizly - Live Interactive Quizzes</title>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        .lp { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        .nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 64px; border-bottom: 1px solid #e5e7eb; background: white; }
-        .nav-brand { font-size: 18px; font-weight: 600; color: #111827; }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a { font-size: 14px; color: #6b7280; text-decoration: none; }
-        .nav-links a:hover { color: #111827; }
-        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; border: none; transition: all 0.2s; }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-outline { background: white; color: #111827; border: 1px solid #e5e7eb; }
-        .btn-outline:hover { background: #f9fafb; }
-        .hero { text-align: center; padding: 96px 64px 80px; background: white; }
-        .hero-badge { display: inline-block; padding: 4px 14px; background: #eff6ff; color: #1d4ed8; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 24px; border: 1px solid #bfdbfe; }
-        .hero h1 { font-size: 52px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 20px; max-width: 640px; margin-left: auto; margin-right: auto; color: #111827; }
-        .hero p { font-size: 17px; color: #6b7280; max-width: 480px; margin: 0 auto 40px; line-height: 1.6; }
-        .hero-actions { display: flex; gap: 12px; justify-content: center; }
-        .join-bar { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 20px; }
-        .join-bar input { padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; width: 180px; }
-        .join-bar span { font-size: 13px; color: #6b7280; }
-        .stat-row { display: flex; gap: 48px; margin-top: 64px; padding-top: 48px; border-top: 1px solid #e5e7eb; justify-content: center; }
-        .stat-num { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: #111827; }
-        .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
-        .section { padding: 80px 64px; background: white; }
-        .section-alt { background: #f9fafb; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
-        .section-label { font-size: 12px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
-        .section h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; color: #111827; }
-        .section-sub { font-size: 16px; color: #6b7280; max-width: 480px; line-height: 1.6; margin-bottom: 48px; }
-        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .feature-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; }
-        .feature-icon { width: 40px; height: 40px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-        .feature-icon svg { width: 20px; height: 20px; stroke: #2563eb; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-        .feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #111827; }
-        .feature-card p { font-size: 14px; color: #6b7280; line-height: 1.6; }
-        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-        .step-num { font-size: 13px; font-weight: 600; color: #2563eb; margin-bottom: 12px; }
-        .how-step h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #111827; }
-        .how-step p { font-size: 14px; color: #6b7280; line-height: 1.6; }
-        .cta-section { background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 80px 64px; text-align: center; }
-        .cta-section h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; color: #111827; }
-        .cta-section p { font-size: 16px; color: #6b7280; margin-bottom: 32px; }
-        .cta-actions { display: flex; gap: 12px; justify-content: center; }
-        .footer { padding: 32px 64px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e5e7eb; background: white; }
-        .footer-left { font-size: 14px; color: #6b7280; }
-        .footer-links { display: flex; gap: 24px; }
-        .footer-links a { font-size: 13px; color: #6b7280; text-decoration: none; }
+        
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background-color: #ffffff; 
+            color: #18181b; 
+            line-height: 1.6; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* Navigation */
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 80px; border-bottom: 1px solid #e4e4e7; background: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 50; }
+        .nav-brand { font-size: 24px; font-weight: 800; color: #09090b; letter-spacing: -0.03em; }
+        .nav-links { display: flex; gap: 40px; align-items: center; }
+        
+        /* Apply link colors ONLY to standard links, not buttons */
+        .nav-links a:not(.btn) { font-size: 16px; font-weight: 600; color: #3f3f46; text-decoration: none; transition: color 0.2s; }
+        .nav-links a:not(.btn):hover { color: #2563eb; }
+        
+        /* Buttons - Now using Pure Blue */
+        .btn { padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; border: none; transition: all 0.2s; }
+        .btn-primary { background: #2563eb; color: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3); color: #ffffff !important; }
+        .btn-outline { background: white; color: #09090b; border: 2px solid #e4e4e7; }
+        .btn-outline:hover { background: #f4f4f5; border-color: #d4d4d8; }
+        
+        /* Hero Section */
+        .hero { text-align: center; padding: 140px 64px 100px; background: #ffffff; }
+        .hero-badge { display: inline-block; padding: 8px 20px; background: #eff6ff; color: #1d4ed8; border-radius: 9999px; font-size: 14px; font-weight: 800; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .hero h1 { font-size: 72px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 32px; max-width: 800px; margin-left: auto; margin-right: auto; color: #09090b; }
+        .hero p { font-size: 22px; font-weight: 500; color: #3f3f46; max-width: 600px; margin: 0 auto 48px; line-height: 1.5; }
+        .hero-actions { display: flex; gap: 20px; justify-content: center; }
+        
+        /* Stats */
+        .stat-row { display: flex; gap: 80px; margin-top: 100px; padding-top: 64px; border-top: 2px solid #f4f4f5; justify-content: center; }
+        .stat-num { font-size: 48px; font-weight: 900; letter-spacing: -0.03em; color: #09090b; line-height: 1; }
+        .stat-label { font-size: 16px; font-weight: 600; color: #52525b; margin-top: 12px; }
+        
+        /* Sections */
+        .section { padding: 120px 80px; background: #ffffff; }
+        .section-alt { background: #fafafa; border-top: 1px solid #e4e4e7; border-bottom: 1px solid #e4e4e7; }
+        .section-label { font-size: 14px; font-weight: 800; color: #2563eb; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: block; }
+        .section h2 { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px; color: #09090b; line-height: 1.1; }
+        .section-sub { font-size: 20px; font-weight: 500; color: #3f3f46; max-width: 600px; line-height: 1.6; margin-bottom: 64px; }
+        
+        /* Feature Grid */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .feature-card { background: #ffffff; border: 2px solid #f4f4f5; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.05); border-color: #e4e4e7; }
+        .feature-icon { width: 56px; height: 56px; border-radius: 14px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+        .feature-icon svg { width: 28px; height: 28px; stroke: #2563eb; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .feature-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 12px; color: #09090b; letter-spacing: -0.02em;}
+        .feature-card p { font-size: 17px; font-weight: 500; color: #52525b; line-height: 1.6; }
+        
+        /* How it works */
+        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; }
+        .step-num { font-size: 16px; font-weight: 800; color: #2563eb; margin-bottom: 16px; letter-spacing: 0.05em; text-transform: uppercase;}
+        .how-step h3 { font-size: 24px; font-weight: 800; margin-bottom: 16px; color: #09090b; letter-spacing: -0.02em;}
+        .how-step p { font-size: 17px; font-weight: 500; color: #52525b; line-height: 1.6; }
+        
+        /* CTA Section */
+        .cta-section { background: #fafafa; padding: 120px 80px; text-align: center; }
+        .cta-section h2 { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px; color: #09090b; }
+        .cta-section p { font-size: 22px; font-weight: 500; color: #3f3f46; margin-bottom: 48px; }
+        
+        /* Footer */
+        .footer { padding: 48px 80px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e4e4e7; background: #ffffff; }
+        .footer-left { font-size: 16px; color: #52525b; font-weight: 600;}
+        .footer-links { display: flex; gap: 32px; }
+        .footer-links a { font-size: 16px; font-weight: 600; color: #52525b; text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: #09090b; }
     </style>
 </h:head>
 <h:body>
@@ -61,7 +86,7 @@
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
             <a href="join.xhtml">Join a quiz</a>
-            <a href="login.xhtml" class="btn btn-primary" style="padding:8px 18px;">Teacher login</a>
+            <a href="login.xhtml" class="btn btn-primary" style="padding: 10px 24px;">Teacher login</a>
         </div>
     </nav>
 
@@ -73,11 +98,7 @@
             <a href="login.xhtml" class="btn btn-primary">Get started free</a>
             <a href="#how" class="btn btn-outline">See how it works</a>
         </div>
-        <div class="join-bar">
-            <span>Student?</span>
-            <input type="text" placeholder="Enter join code" />
-            <a href="join.xhtml" class="btn btn-outline" style="padding:9px 16px; font-size:13px;">Join quiz</a>
-        </div>
+
         <div class="stat-row">
             <div class="stat">
                 <div class="stat-num">100pts</div>
@@ -94,8 +115,8 @@
         </div>
     </section>
 
-    <section class="section" id="features">
-        <div class="section-label">Features</div>
+    <section class="section section-alt" id="features">
+        <span class="section-label">Features</span>
         <h2>Built for meaningful assessment</h2>
         <p class="section-sub">More than a quiz tool — a window into how well your students actually understand the material.</p>
         <div class="features-grid">
@@ -144,8 +165,8 @@
         </div>
     </section>
 
-    <section class="section section-alt" id="how">
-        <div class="section-label">How it works</div>
+    <section class="section" id="how">
+        <span class="section-label">How it works</span>
         <h2>From setup to results in minutes</h2>
         <p class="section-sub">Three steps for teachers, one step for students.</p>
         <div class="how-grid">
