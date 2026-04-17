@@ -353,9 +353,6 @@
                         displayQuestion(message.data);
                     }
                     if (message.action === "GAME_OVER") {
-                        if (typeof checkIfSubmitted === "function") {
-                            checkIfSubmitted();
-                        }
 
                         questionArea.style.display = "none";
                         waitingArea.style.display = "block";
@@ -378,24 +375,20 @@
                         let html = `<div style="background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;">`;
                         console.log(message);
 
-                        let leaderboardData = message.data || message.scores; // Fallback just in case!
+                        message.scores.forEach((s, idx) => {
+                            // Highlight the current student's row in blue
+                            console.log(s);
+                            let isMe = s.name === globalStudentName;
+                            let bgColor = isMe ? "#f1f8ff" : "#ffffff";
+                            let nameWeight = isMe ? "800" : "600";
+                            let borderBottom = idx < message.scores.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
 
-                        if (leaderboardData && Array.isArray(leaderboardData)) {
-                            leaderboardData.forEach((s, idx) => {
-                                let isMe = s.name === globalStudentName;
-                                let bgColor = isMe ? "#f1f8ff" : "#ffffff";
-                                let nameWeight = isMe ? "800" : "600";
-                                let borderBottom = idx < leaderboardData.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
-
-                                html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: ${bgColor}; ${borderBottom}">
-                <span style="color: #666; font-weight: bold; width: 30px;">#${idx + 1}</span>
-                <span style="flex-grow: 1; text-align: left; font-weight: ${nameWeight}; color: #333;">${s.name} ${isMe ? "(You)" : ""}</span>
-                <span style="color: #0d6efd; font-weight: bold;">${s.points} PTS</span>
-            </div>`;
-                            });
-                        } else {
-                            console.error("Leaderboard array is missing or invalid", message);
-                        }
+                            html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: ${bgColor}; ${borderBottom}">'
+                            '<span style="color: #666; font-weight: bold; width: 30px;">' + idx + 1 + '</span>'
+                            '<span style="flex-grow: 1; text-align: left; font-weight: ${nameWeight}; color: #333;">' + s.name + '</span>'
+                            '<span style="color: #0d6efd; font-weight: bold;">' + s.points + '</span>'
+                            '</div>';
+                        });
 
                         html += `</div>`;
 

@@ -390,7 +390,7 @@
                     <div id="hostLeaderboard" style="text-align: left;"></div>
                 </div>
                 <div class="center-btn-wrapper">
-                    <button class="btn btn-primary" onclick="window.location.href='dashboard'">Exit Game</button>
+                    <button class="btn btn-primary" onclick="window.location.href='quizzes'">Exit Game</button>
                 </div>
             </div>
 
@@ -598,12 +598,15 @@
                 scoresArray.forEach((s, idx) => {
                     let borderBottom = idx < scoresArray.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
                     console.log(s);
+                    console.log("the name ", s.name);
+                    console.log
 
-                    html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ffffff; ${borderBottom}">
-                        <span style="color: #666; font-weight: bold; width: 40px; font-size: 18px;">#${idx + 1}</span>
-                        <span style="flex-grow: 1; text-align: left; font-weight: 700; color: #333; font-size: 18px;">${s.name}</span>
-                        <span style="color: #0d6efd; font-weight: bold; font-size: 18px;">${s.points} PTS</span>
-                    </div>`;
+                    // ✅ FIXED — Pure string concatenation, JSF has nothing to parse
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ffffff; ' + borderBottom + '">' +
+                        '<span style="color: #666; font-weight: bold; width: 40px; font-size: 18px;">#' + (idx + 1) + '</span>' +
+                        '<span style="flex-grow: 1; text-align: left; font-weight: 700; color: #333; font-size: 18px;">' + s.name + '</span>' +
+                        '<span style="color: #0d6efd; font-weight: bold; font-size: 18px;">' + s.points + ' PTS</span>' +
+                        '</div>';
                 });
 
                 html += `</div>`;
