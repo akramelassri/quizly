@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core">
+<h:head>
+    <title>Quizly - Host Portal</title>
+    <f:metadata>
+        <f:viewParam name="pin" id="pinParam" />
+    </f:metadata>
+
+    <h:outputStylesheet name="css/base.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        .logout-btn {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 12px 16px;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            color: var(--danger-color);
+            background-color: var(--danger-bg);
+        }
+
+        /* Bannière supérieure de la session en direct */
+        .live-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+            color: white;
+            padding: 16px 32px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px var(--primary-shadow);
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* --- LOBBY SCREEN (Waiting Room) --- */
+        .top-cards {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .pin-card {
+            flex: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-card {
+            flex: 1;
+            text-align: center;
+        }
+
+        .pin-label {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--primary-color);
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .pin-number {
+            font-size: 96px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin: 0 0 24px 0;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .students-section {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            min-height: 300px;
+            margin-bottom: 40px;
+        }
+
+        .students-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 18px;
+        }
+
+        .badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            margin-right: 16px;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .student-pill {
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .student-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .student-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* --- ACTIVE GAME SCREEN --- */
+        #activeGameScreen {
+            display: none;
+        }
+
+        .question-title {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 48px;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+        }
+
+        .timer-badge {
+            background: var(--danger-color);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 9999px;
+            font-weight: 900;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .stats-layout {
+            display: flex;
+            gap: 32px;
+        }
+
+        .stats-main {
+            flex: 2;
+            padding: 40px;
+        }
+
+        .stats-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Progress Bars Premium */
+        .bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .bar-label {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            border-radius: var(--border-radius-sm);
+            margin-right: 24px;
+            font-size: 20px;
+        }
+
+        .bar-track {
+            flex: 1;
+            background: var(--bg-color);
+            height: 56px;
+            border-radius: var(--border-radius-sm);
+            position: relative;
+            overflow: hidden;
+            margin-right: 24px;
+            border: 2px solid var(--border-color);
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-percent {
+            font-weight: 900;
+            color: var(--text-main);
+            width: 60px;
+            text-align: right;
+            font-size: 20px;
+        }
+
+        /* Custom Colors for Confidence */
+        .confidence-track {
+            background: var(--bg-color);
+            height: 24px;
+            border-radius: 9999px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            background: #eab308;
+            width: 0%;
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+    </style>
+</h:head>
+<h:body>
+
+    <div class="app-container">
+
+        <aside class="sidebar">
+            <div class="brand">
+                Quizly
+                <span class="brand-sub">INSTRUCTOR PORTAL</span>
+            </div>
+
+            <nav>
+                <h:link outcome="quizzes" styleClass="nav-link active" value="MY QUIZZES" />
+                <a href="#" class="nav-link">HISTORY</a>
+                <a href="#" class="nav-link">SETTINGS</a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+
+            <h:form>
+                <h:commandButton value="Exit Session" action="#{quizBean.logout}" styleClass="logout-btn" />
+            </h:form>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="live-banner">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span
+                        style="display:inline-block; width:12px; height:12px; background:white; border-radius:50%; animation: pulse 2s infinite;"></span>
+                    Live Session Running
+                </div>
+                <div id="headerStatus">Join Code: #{param['pin']}</div>
+            </div>
+
+            <div id="lobbyScreen">
+                <div class="top-cards">
+                    <div class="card pin-card">
+                        <div class="pin-label">Join at quizly.com with PIN</div>
+                        <div class="pin-number">#{param['pin']}</div>
+                        <!-- Replace the static button -->
+                        <button class="btn btn-secondary" onclick="copyJoinLink()">Copy Join Link</button>
+                    </div>
+                    <div class="card qr-card">
+                        <!-- ✅ QR code renders here -->
+                        <div id="qrCodeContainer"
+                            style="display:flex; justify-content:center; align-items:center; margin-bottom:16px;"></div>
+                        <p style="font-size:14px; font-weight:600; color:var(--text-muted); margin:0;">Scan to join on
+                            mobile</p>
+                    </div>
+                </div>
+
+                <div class="students-section">
+                    <div class="students-header">
+                        <span class="badge" id="studentCountBadge">0</span>
+                        <span>Students Ready</span>
+                        <span
+                            style="margin-left:auto; font-size:13px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Waiting
+                            for others...</span>
+                    </div>
+                    <div class="students-grid" id="playersList">
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 48px;">
+                    <button class="btn btn-primary" style="padding: 20px 80px; font-size: 24px; border-radius: 9999px;"
+                        onclick="startGame()">START GAME ▻</button>
+                    <p id="connStatus" style="color:var(--danger-color); font-weight:700; margin-top:24px;"></p>
+                </div>
+            </div>
+
+            <div id="activeGameScreen">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:24px;">
+                    <div
+                        style="background:var(--primary-light); color:var(--primary-color); padding:6px 16px; border-radius:9999px; font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">
+                        Live Question
+                    </div>
+                    <div class="timer-badge">
+                        ⏱ TIME REMAINING: <span id="timerDisplay">00:60</span>
+                    </div>
+                </div>
+
+                <div class="question-title" id="hostQuestionText">
+                    Loading question...
+                </div>
+
+                <div class="stats-layout">
+                    <div class="card stats-main">
+                        <h3 style="margin-top:0;">Live Answer Distribution</h3>
+
+                        <div class="bar-container">
+                            <div class="bar-label">A</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" id="barA"></div>
+                            </div>
+                            <div class="bar-percent" id="pctA">0%</div>
+                        </div>
+
+                        <div class="bar-container">
+                            <div class="bar-label">B</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" id="barB"></div>
+                            </div>
+                            <div class="bar-percent" id="pctB">0%</div>
+                        </div>
+
+                        <div class="bar-container">
+                            <div class="bar-label">C</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" id="barC"></div>
+                            </div>
+                            <div class="bar-percent" id="pctC">0%</div>
+                        </div>
+
+                        <div class="bar-container">
+                            <div class="bar-label">D</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" id="barD"></div>
+                            </div>
+                            <div class="bar-percent" id="pctD">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-side">
+                        <div class="card">
+                            <h4 style="margin-top:0; color:var(--text-main); font-weight:800; font-size:16px;">
+                                CONFIDENCE METER</h4>
+                            <div class="confidence-track">
+                                <div class="confidence-fill" id="confidenceGauge"></div>
+                            </div>
+                            <p style="font-size:14px; font-weight:600; color:var(--text-muted); margin:0;">
+                                Class Average Wager: <span id="avgWager"
+                                    style="color:var(--text-main); font-weight:800; font-size:16px;">0</span> pts
+                            </p>
+                        </div>
+
+                        <div class="card" style="padding:20px;">
+                            <button class="btn btn-light" style="width:100%;" onclick="forceNextQuestion()">NEXT
+                                QUESTION ▻</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="gameOverScreen" style="display: none; text-align: center; margin-top: 40px;">
+                <div class="question-title">🏆 Game Over! Final Standings</div>
+                <div class="card" style="max-width: 600px; margin: 0 auto; padding: 30px;">
+                    <div id="hostLeaderboard" style="text-align: left;"></div>
+                </div>
+                <div class="center-btn-wrapper">
+                    <button class="btn btn-primary" onclick="window.location.href='quizzes.xhtml'">Exit Game</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <style>
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+    </style>
+
+    <script>
+        //<![CDATA[
+        const pin = "#{param['pin']}";
+        const token = sessionStorage.getItem("quizlyToken");
+
+        let ws;
+        let studentCount = 0;
+
+        // Build the full join URL students will land on
+        const joinUrl = window.location.origin + "#{request.contextPath}/join.xhtml?pin=" + pin;
+
+        // Generate the QR code into the container
+        if (pin) {
+            new QRCode(document.getElementById("qrCodeContainer"), {
+                text: joinUrl,
+                width: 160,
+                height: 160,
+                colorDark: "#111111",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H  // High error correction
+            });
+        }
+
+        // --- GAME STATE VARIABLES ---
+        let choiceIdToLetterMap = {};
+        let currentStats = {
+            totalAnswers: 0,
+            wagerSum: 0,
+            counts: { A: 0, B: 0, C: 0, D: 0 }
+        };
+
+        // --- TIMER VARIABLES ---
+        let questionTimerInterval;
+        let timeLeft = 60;
+
+        const lobbyScreen = document.getElementById("lobbyScreen");
+        const activeGameScreen = document.getElementById("activeGameScreen");
+        const playersList = document.getElementById("playersList");
+        const studentCountBadge = document.getElementById("studentCountBadge");
+        const connStatus = document.getElementById("connStatus");
+
+        if (pin && token) {
+            connectWebSocket();
+        } else {
+            connStatus.innerText = "Error: Missing Game PIN or Validation Token. Please return to dashboard.";
+        }
+
+        function forceNextQuestion() {
+            console.log("Host manually skipped to the next question!");
+
+            // Stop the countdown timer immediately
+            clearInterval(questionTimerInterval);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: "NEXT_QUESTION", role: "HOST" }));
+            }
+        }
+
+        function connectWebSocket() {
+            const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const wsPath = wsProtocol + "//" + window.location.host + "#{request.contextPath}/quiz/" + pin;
+            ws = new WebSocket(wsPath);
+
+            ws.onopen = function (event) {
+                console.log("Connected to lobby. Sending HOST auth...");
+                ws.send(JSON.stringify({ action: "JOIN", role: "HOST", firebaseToken: token }));
+            };
+
+            ws.onmessage = function (event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("Host received:", data);
+
+                    if (data.action === "PLAYER_JOINED") {
+                        addPlayerToScreen(data.name);
+                    }
+
+                    if (data.action === "NEW_QUESTION") {
+                        transitionToActiveGame(data.data);
+                    }
+
+                    if (data.action === "GAME_OVER") {
+                        showGameOverScreen(data.scores);
+                    }
+
+                    // --- HANDLE REAL-TIME MATH ---
+                    if (data.action === "STATS_UPDATE") {
+                        processStatsUpdate(data.choiceId, data.wager);
+                    }
+
+                } catch (e) {
+                    console.error("Failed to parse incoming message", e);
+                }
+            };
+
+            ws.onclose = function (event) {
+                connStatus.innerText = "Connection lost. Please refresh the page.";
+                clearInterval(questionTimerInterval);
+            };
+        }
+
+        function addPlayerToScreen(playerName) {
+            studentCount++;
+            studentCountBadge.innerText = studentCount;
+
+            const pill = document.createElement("div");
+            pill.className = "student-pill";
+            pill.innerHTML = `<span class="student-icon">👋</span> `;
+
+            const textSpan = document.createElement("span");
+            textSpan.textContent = playerName;
+            pill.appendChild(textSpan);
+
+            playersList.appendChild(pill);
+        }
+
+        function copyJoinLink() {
+            const joinUrl = pin;
+            navigator.clipboard.writeText(joinUrl).then(() => {
+                const btn = event.target;
+                btn.innerText = "✓ Copied!";
+                setTimeout(() => btn.innerText = "Copy Join Link", 2000);
+            });
+        }
+
+        function startGame() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                if (studentCount === 0) {
+                    if (!confirm("No students have joined yet! Start anyway?")) return;
+                }
+                ws.send(JSON.stringify({ action: "START_GAME", role: "HOST" }));
+            }
+        }
+
+        function transitionToActiveGame(questionData) {
+            lobbyScreen.style.display = "none";
+            activeGameScreen.style.display = "block";
+            document.getElementById("hostQuestionText").textContent = questionData.text;
+
+            choiceIdToLetterMap = {};
+            const letters = ['A', 'B', 'C', 'D'];
+            questionData.choices.forEach((choice, index) => {
+                if (index < 4) choiceIdToLetterMap[choice.id] = letters[index];
+            });
+
+            currentStats = { totalAnswers: 0, wagerSum: 0, counts: { A: 0, B: 0, C: 0, D: 0 } };
+            resetStatisticBars();
+            startTimer();
+        }
+
+        function processStatsUpdate(dbChoiceId, wager) {
+            const letter = choiceIdToLetterMap[dbChoiceId];
+            if (!letter) return;
+
+            currentStats.totalAnswers++;
+            currentStats.wagerSum += wager;
+            currentStats.counts[letter]++;
+
+            ['A', 'B', 'C', 'D'].forEach(l => {
+                let pct = Math.round((currentStats.counts[l] / currentStats.totalAnswers) * 100) || 0;
+                document.getElementById('bar' + l).style.width = pct + '%';
+                document.getElementById('pct' + l).innerText = pct + '%';
+            });
+
+            let avgWager = Math.round(currentStats.wagerSum / currentStats.totalAnswers);
+            document.getElementById('avgWager').innerText = avgWager;
+
+            let confPct = Math.min(100, Math.round((avgWager / 100) * 100));
+            document.getElementById('confidenceGauge').style.width = confPct + '%';
+        }
+
+        function resetStatisticBars() {
+            ['A', 'B', 'C', 'D'].forEach(letter => {
+                document.getElementById('bar' + letter).style.width = '0%';
+                document.getElementById('pct' + letter).innerText = '0%';
+            });
+            document.getElementById('confidenceGauge').style.width = '0%';
+            document.getElementById('avgWager').innerText = '0';
+        }
+
+        // --- GAME OVER LOGIC ---
+        // --- GAME OVER LOGIC ---
+        function showGameOverScreen(scoresData) {
+            clearInterval(questionTimerInterval);
+            console.log("Rendering Game Over screen with data:", scoresData); // Debugging
+
+            activeGameScreen.style.display = "none";
+            lobbyScreen.style.display = "none";
+            document.getElementById("gameOverScreen").style.display = "block";
+            document.getElementById("headerStatus").innerText = "FINISHED | Code: " + pin;
+
+            const board = document.getElementById("hostLeaderboard");
+
+            // Safety Check: Make sure we actually have an array to loop through
+            // Sometimes it's passed directly as 'scores', sometimes inside 'message.scores'
+            let scoresArray = [];
+            if (Array.isArray(scoresData)) {
+                scoresArray = scoresData;
+            } else if (scoresData && Array.isArray(scoresData.scores)) {
+                scoresArray = scoresData.scores;
+            }
+
+            if (scoresArray.length > 0) {
+                // Build the clean, white-card leaderboard
+                let html = `<div style="background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;">`;
+
+                scoresArray.forEach((s, idx) => {
+                    let borderBottom = idx < scoresArray.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
+                    console.log(s);
+                    console.log("the name ", s.name);
+                    console.log
+
+                    // ✅ FIXED — Pure string concatenation, JSF has nothing to parse
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ffffff; ' + borderBottom + '">' +
+                        '<span style="color: #666; font-weight: bold; width: 40px; font-size: 18px;">#' + (idx + 1) + '</span>' +
+                        '<span style="flex-grow: 1; text-align: left; font-weight: 700; color: #333; font-size: 18px;">' + s.name + '</span>' +
+                        '<span style="color: #0d6efd; font-weight: bold; font-size: 18px;">' + s.points + ' PTS</span>' +
+                        '</div>';
+                });
+
+                html += `</div>`;
+                board.innerHTML = html;
+            } else {
+                board.innerHTML = `<div style="color: red; padding: 20px;">Error: No score data received from server.</div>`;
+            }
+        }
+
+        // --- COUNTDOWN LOGIC ---
+        function startTimer() {
+            clearInterval(questionTimerInterval);
+            timeLeft = 60;
+            updateTimerUI();
+
+            questionTimerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    autoAdvanceQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            let seconds = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+            document.getElementById("timerDisplay").innerText = "00:" + seconds;
+        }
+
+        function autoAdvanceQuestion() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: "NEXT_QUESTION", role: "HOST" }));
+            }
+        }
+        //]]>
+    </script>
+</h:body>
+
+</html>
