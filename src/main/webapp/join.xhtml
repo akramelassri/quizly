@@ -268,7 +268,8 @@
         <div class="spinner"></div>
         <p id="waitingMessage" style="color: #666; font-weight: bold; margin-top: 20px;">See your nickname on screen?
         </p>
-        <p style="font-size: 14px; color: #999;">Waiting for the host to start the game...</p>
+        <p id="waitingSub" style="font-size: 14px; color: #999;">Waiting for the host to start the game...</p>
+        <div id="studentLeaderboard" style="display: none; margin-top: 20px; text-align: left;"></div>
     </div>
 
     <div id="questionArea">
@@ -350,6 +351,58 @@
                     // --- HANDLE NEW QUESTION ---
                     if (message.action === "NEW_QUESTION") {
                         displayQuestion(message.data);
+                    }
+                    if (message.action === "GAME_OVER") {
+                        if (typeof checkIfSubmitted === "function") {
+                            checkIfSubmitted();
+                        }
+
+                        questionArea.style.display = "none";
+                        waitingArea.style.display = "block";
+
+                        // Hide the spinner and waiting text
+                        const waitingSub = document.getElementById("waitingSub");
+                        if (waitingSub) waitingSub.style.display = "none";
+                        const spinner = document.querySelector(".spinner");
+                        if (spinner) spinner.style.display = "none";
+
+                        // --- MATCHING YOUR MOCKUP DESIGN ---
+                        document.getElementById("waitingMessage").innerHTML = "🏆 Game Over! Final Standings";
+                        document.getElementById("waitingMessage").style.color = "#111";
+                        document.getElementById("waitingMessage").style.fontSize = "28px";
+
+                        const board = document.getElementById("studentLeaderboard");
+                        board.style.display = "block";
+
+                        // Build the leaderboard rows just like your screenshot!
+                        let html = `<div style="background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;">`;
+                        console.log(message);
+
+                        let leaderboardData = message.data || message.scores; // Fallback just in case!
+
+                        if (leaderboardData && Array.isArray(leaderboardData)) {
+                            leaderboardData.forEach((s, idx) => {
+                                let isMe = s.name === globalStudentName;
+                                let bgColor = isMe ? "#f1f8ff" : "#ffffff";
+                                let nameWeight = isMe ? "800" : "600";
+                                let borderBottom = idx < leaderboardData.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
+
+                                html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: ${bgColor}; ${borderBottom}">
+                <span style="color: #666; font-weight: bold; width: 30px;">#${idx + 1}</span>
+                <span style="flex-grow: 1; text-align: left; font-weight: ${nameWeight}; color: #333;">${s.name} ${isMe ? "(You)" : ""}</span>
+                <span style="color: #0d6efd; font-weight: bold;">${s.points} PTS</span>
+            </div>`;
+                            });
+                        } else {
+                            console.error("Leaderboard array is missing or invalid", message);
+                        }
+
+                        html += `</div>`;
+
+                        // Add the Exit Game button from your mockup
+                        html += `<button class="btn-primary" style="background-color: #0d6efd;" onclick="window.location.reload()">Exit Game</button>`;
+
+                        board.innerHTML = html;
                     }
 
                 } catch (e) {

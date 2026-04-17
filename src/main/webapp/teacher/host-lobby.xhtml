@@ -377,9 +377,20 @@
                         </div>
 
                         <div class="card" style="padding:20px;">
-                            <button class="btn btn-light" style="width:100%;">NEXT QUESTION ▻</button>
+                            <button class="btn btn-light" style="width:100%;" onclick="forceNextQuestion()">NEXT
+                                QUESTION ▻</button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="gameOverScreen" style="display: none; text-align: center; margin-top: 40px;">
+                <div class="question-title">🏆 Game Over! Final Standings</div>
+                <div class="card" style="max-width: 600px; margin: 0 auto; padding: 30px;">
+                    <div id="hostLeaderboard" style="text-align: left;"></div>
+                </div>
+                <div class="center-btn-wrapper">
+                    <button class="btn btn-primary" onclick="window.location.href='dashboard'">Exit Game</button>
                 </div>
             </div>
 
@@ -418,6 +429,17 @@
             connStatus.innerText = "Error: Missing Game PIN or Validation Token. Please return to dashboard.";
         }
 
+        function forceNextQuestion() {
+            console.log("Host manually skipped to the next question!");
+
+            // Stop the countdown timer immediately
+            clearInterval(questionTimerInterval);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ action: "NEXT_QUESTION", role: "HOST" }));
+            }
+        }
+
         function connectWebSocket() {
             const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
             const wsPath = wsProtocol + "//" + window.location.host + "#{request.contextPath}/quiz/" + pin;
@@ -439,6 +461,10 @@
 
                     if (data.action === "NEW_QUESTION") {
                         transitionToActiveGame(data.data);
+                    }
+
+                    if (data.action === "GAME_OVER") {
+                        showGameOverScreen(data.scores);
                     }
 
                     // --- HANDLE REAL-TIME MATH ---
@@ -541,6 +567,50 @@
             });
             document.getElementById('confidenceGauge').style.width = '0%';
             document.getElementById('avgWager').innerText = '0';
+        }
+
+        // --- GAME OVER LOGIC ---
+        // --- GAME OVER LOGIC ---
+        function showGameOverScreen(scoresData) {
+            clearInterval(questionTimerInterval);
+            console.log("Rendering Game Over screen with data:", scoresData); // Debugging
+
+            activeGameScreen.style.display = "none";
+            lobbyScreen.style.display = "none";
+            document.getElementById("gameOverScreen").style.display = "block";
+            document.getElementById("headerStatus").innerText = "FINISHED | Code: " + pin;
+
+            const board = document.getElementById("hostLeaderboard");
+
+            // Safety Check: Make sure we actually have an array to loop through
+            // Sometimes it's passed directly as 'scores', sometimes inside 'message.scores'
+            let scoresArray = [];
+            if (Array.isArray(scoresData)) {
+                scoresArray = scoresData;
+            } else if (scoresData && Array.isArray(scoresData.scores)) {
+                scoresArray = scoresData.scores;
+            }
+
+            if (scoresArray.length > 0) {
+                // Build the clean, white-card leaderboard
+                let html = `<div style="background: white; border: 1px solid #eaeaea; border-radius: 12px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;">`;
+
+                scoresArray.forEach((s, idx) => {
+                    let borderBottom = idx < scoresArray.length - 1 ? "border-bottom: 1px solid #f0f0f0;" : "";
+                    console.log(s);
+
+                    html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #ffffff; ${borderBottom}">
+                        <span style="color: #666; font-weight: bold; width: 40px; font-size: 18px;">#${idx + 1}</span>
+                        <span style="flex-grow: 1; text-align: left; font-weight: 700; color: #333; font-size: 18px;">${s.name}</span>
+                        <span style="color: #0d6efd; font-weight: bold; font-size: 18px;">${s.points} PTS</span>
+                    </div>`;
+                });
+
+                html += `</div>`;
+                board.innerHTML = html;
+            } else {
+                board.innerHTML = `<div style="color: red; padding: 20px;">Error: No score data received from server.</div>`;
+            }
         }
 
         // --- COUNTDOWN LOGIC ---
