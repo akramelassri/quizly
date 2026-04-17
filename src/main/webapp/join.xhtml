@@ -415,7 +415,13 @@
                 questionArea.style.display = "none";
                 document.getElementById("joinBtn").innerText = "Enter Room";
                 document.getElementById("joinBtn").disabled = false;
-                showError("Connection refused: Invalid PIN or closed session.");
+
+                // evt.reason contains the string you passed in CloseReason on the server
+                if (evt.reason && evt.reason.length > 0) {
+                    showError(evt.reason); // ← Shows your exact server message
+                } else {
+                    showError("Connection refused: Invalid PIN or closed session.");
+                }
             };
         }
 
