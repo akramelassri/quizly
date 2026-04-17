@@ -31,6 +31,7 @@ public class QuizLobbyEndpoint {
         commandRegistry.put("JOIN", new JoinGameCommand());
         commandRegistry.put("START_GAME", new StartGameCommand());
         commandRegistry.put("SUBMIT_ANSWER", new SubmitAnswerCommand());
+        commandRegistry.put("NEXT_QUESTION", new NextQuestionCommand());
     }
 
     @OnOpen

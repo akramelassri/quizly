@@ -17,7 +17,6 @@ import jakarta.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -153,11 +152,12 @@ public class QuizBean implements Serializable {
         }
         currentQuiz.setTeacher(currentTeacher);
 
-        // 1. Ensure all associations are correctly set before persisting so that Cascade works
+        // 1. Ensure all associations are correctly set before persisting so that
+        // Cascade works
         if (currentQuiz.getQuestions() != null) {
             for (Question q : currentQuiz.getQuestions()) {
                 q.setQuiz(currentQuiz); // Ensure bidirectional association
-                
+
                 if (q.getChoices() != null) {
                     for (Choice c : q.getChoices()) {
                         c.setQuestion(q); // Ensure bidirectional association
@@ -166,7 +166,8 @@ public class QuizBean implements Serializable {
             }
         }
 
-        // 2. Save standard quiz (and its questions/choices automatically due to CascadeType.ALL)
+        // 2. Save standard quiz (and its questions/choices automatically due to
+        // CascadeType.ALL)
         quizDAO.save(currentQuiz);
 
         return "/teacher/dashboard?faces-redirect=true";

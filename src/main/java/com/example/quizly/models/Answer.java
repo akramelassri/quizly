@@ -22,7 +22,7 @@ public class Answer {
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "choice_id", nullable = false)
+    @JoinColumn(name = "choice_id", nullable = true)
     private Choice choice;
 
     // --- NEW WAGER COLUMN ---
