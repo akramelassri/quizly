@@ -6,320 +6,332 @@
         <f:viewParam name="pin" id="pinParam" />
     </f:metadata>
 
+    <h:outputStylesheet name="css/base.css" />
+
     <style>
-        /* --- GLOBAL THEME --- */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            color: #333;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 240px;
-            background: white;
-            border-right: 1px solid #eaeaea;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            box-sizing: border-box;
-        }
-
-        .instructor-profile {
-            padding: 0 20px 20px 20px;
-            border-bottom: 1px solid #eaeaea;
-            margin-bottom: 20px;
-        }
-
-        .nav-item {
-            padding: 15px 25px;
-            color: #555;
-            font-weight: bold;
+        .logout-btn {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
             cursor: pointer;
-            transition: background 0.2s;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 12px 16px;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
         }
 
-        .nav-item.active {
-            background: #f1f8ff;
-            color: #0d6efd;
-            border-left: 4px solid #0d6efd;
+        .logout-btn:hover {
+            color: var(--danger-color);
+            background-color: var(--danger-bg);
         }
 
-        /* --- MAIN CONTENT AREA --- */
-        .main-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* --- HEADER --- */
-        .top-header {
-            background-color: #0d6efd;
-            color: white;
-            padding: 15px 30px;
+        /* Bannière supérieure de la session en direct */
+        .live-banner {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
-        }
-
-        .content-container {
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
+            background: var(--primary-color);
+            color: white;
+            padding: 16px 32px;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px -1px var(--primary-shadow);
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         /* --- LOBBY SCREEN (Waiting Room) --- */
         .top-cards {
             display: flex;
-            gap: 30px;
+            gap: 32px;
             margin-bottom: 40px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-            text-align: center;
-            border: 1px solid #eaeaea;
         }
 
         .pin-card {
             flex: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .qr-card {
             flex: 1;
+            text-align: center;
         }
 
         .pin-label {
-            font-weight: 800;
-            color: #888;
-            letter-spacing: 2px;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--primary-color);
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            text-transform: uppercase;
         }
 
         .pin-number {
-            font-size: 80px;
+            font-size: 96px;
             font-weight: 900;
-            color: #111;
-            margin: 0 0 20px 0;
+            color: var(--text-main);
+            margin: 0 0 24px 0;
             line-height: 1;
+            letter-spacing: -0.02em;
         }
 
         .students-section {
-            background: #f1f3f5;
-            border-radius: 16px;
-            padding: 30px;
-            min-height: 250px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 32px;
+            min-height: 300px;
+            margin-bottom: 40px;
         }
 
         .students-header {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
-            font-weight: bold;
+            margin-bottom: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 18px;
         }
 
         .badge {
-            background: #0d6efd;
+            background: var(--primary-color);
             color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            margin-right: 15px;
-            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            margin-right: 16px;
+            font-size: 16px;
+            font-weight: 900;
         }
 
         .students-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
         }
 
         .student-pill {
-            background: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 700;
+            font-size: 16px;
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            border-left: 4px solid #0d6efd;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-color);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .student-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
         }
 
         .student-icon {
-            margin-right: 10px;
-            color: #0d6efd;
+            margin-right: 12px;
+            font-size: 18px;
         }
 
         /* --- ACTIVE GAME SCREEN --- */
         #activeGameScreen {
             display: none;
-            /* Hidden until game starts */
         }
 
         .question-title {
-            font-size: 36px;
+            font-size: 44px;
             font-weight: 900;
-            color: #111;
-            margin-bottom: 40px;
+            color: var(--text-main);
+            margin-bottom: 48px;
             line-height: 1.2;
+            letter-spacing: -0.03em;
+        }
+
+        .timer-badge {
+            background: var(--danger-color);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 9999px;
+            font-weight: 900;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.05em;
         }
 
         .stats-layout {
             display: flex;
-            gap: 30px;
+            gap: 32px;
         }
 
         .stats-main {
             flex: 2;
+            padding: 40px;
         }
 
         .stats-side {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
-        /* Progress Bars */
+        /* Progress Bars Premium */
         .bar-container {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
         }
 
         .bar-label {
-            background: #f0f0f0;
-            width: 40px;
-            height: 40px;
+            background: var(--primary-light);
+            color: var(--primary-color);
+            width: 56px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            border-radius: 6px;
-            margin-right: 15px;
+            font-weight: 900;
+            border-radius: var(--border-radius-sm);
+            margin-right: 24px;
+            font-size: 20px;
         }
 
         .bar-track {
             flex: 1;
-            background: #f1f3f5;
-            height: 40px;
-            border-radius: 6px;
+            background: var(--bg-color);
+            height: 56px;
+            border-radius: var(--border-radius-sm);
             position: relative;
             overflow: hidden;
-            margin-right: 15px;
+            margin-right: 24px;
+            border: 2px solid var(--border-color);
         }
 
         .bar-fill {
             height: 100%;
-            background: #0d6efd;
+            background: var(--primary-color);
             width: 0%;
-            /* Adjusted via JS later */
-            transition: width 0.4s ease;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .bar-percent {
-            font-weight: bold;
-            color: #0d6efd;
-            width: 40px;
+            font-weight: 900;
+            color: var(--text-main);
+            width: 60px;
             text-align: right;
+            font-size: 20px;
         }
 
-        /* Buttons */
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.1s;
+        /* Custom Colors for Confidence */
+        .confidence-track {
+            background: var(--bg-color);
+            height: 24px;
+            border-radius: 9999px;
+            border: 2px solid var(--border-color);
+            margin-bottom: 16px;
+            overflow: hidden;
         }
 
-        .btn-primary {
-            background: #0d6efd;
-            color: white;
-            font-size: 18px;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-light {
-            background: #e9ecef;
-            color: #555;
-        }
-
-        .center-btn-wrapper {
-            text-align: center;
-            margin-top: 40px;
+        .confidence-fill {
+            background: #eab308;
+            width: 0%;
+            height: 100%;
+            transition: width 0.6s ease;
         }
     </style>
 </h:head>
 <h:body>
 
-    <div class="main-wrapper">
-        <div class="top-header">
-            <div>⏱ Live Session</div>
-            <div id="headerStatus">Code: #{param['pin']}</div>
-        </div>
+    <div class="app-container">
 
-        <div class="content-container">
+        <aside class="sidebar">
+            <div class="brand">
+                Quizly
+                <span class="brand-sub">INSTRUCTOR PORTAL</span>
+            </div>
+
+            <nav>
+                <h:link outcome="quizzes" styleClass="nav-link active" value="MY QUIZZES" />
+                <a href="#" class="nav-link">HISTORY</a>
+                <a href="#" class="nav-link">SETTINGS</a>
+            </nav>
+
+            <div class="sidebar-spacer"></div>
+
+            <h:form>
+                <h:commandButton value="Exit Session" action="#{quizBean.logout}" styleClass="logout-btn" />
+            </h:form>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="live-banner">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span
+                        style="display:inline-block; width:12px; height:12px; background:white; border-radius:50%; animation: pulse 2s infinite;"></span>
+                    Live Session Running
+                </div>
+                <div id="headerStatus">Join Code: #{param['pin']}</div>
+            </div>
 
             <div id="lobbyScreen">
                 <div class="top-cards">
                     <div class="card pin-card">
-                        <div class="pin-label">GAME PIN</div>
+                        <div class="pin-label">Join at quizly.com with PIN</div>
                         <div class="pin-number">#{param['pin']}</div>
-                        <button class="btn btn-light">Copy Join Link</button>
+                        <button class="btn btn-secondary">Copy Join Link</button>
                     </div>
                     <div class="card qr-card">
                         <div
-                            style="background:#111; color:white; height:120px; display:flex; align-items:center; justify-content:center; border-radius:8px; margin-bottom:10px;">
-                            [ QR Code ]
+                            style="background:var(--bg-color); color:var(--text-muted); height:160px; display:flex; align-items:center; justify-content:center; border-radius:var(--border-radius-sm); border: 2px dashed var(--border-color); margin-bottom:16px; font-weight:700;">
+                            [ QR Code Space ]
                         </div>
-                        <p style="font-size:12px; color:#888; margin:0;">Scan to join on mobile</p>
+                        <p style="font-size:14px; font-weight:600; color:var(--text-muted); margin:0;">Scan to join on
+                            mobile</p>
                     </div>
                 </div>
 
                 <div class="students-section">
                     <div class="students-header">
                         <span class="badge" id="studentCountBadge">0</span>
-                        <span>Students Joined</span>
-                        <span style="margin-left:auto; font-size:12px; color:#888;">WAITING FOR OTHERS...</span>
+                        <span>Students Ready</span>
+                        <span
+                            style="margin-left:auto; font-size:13px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Waiting
+                            for others...</span>
                     </div>
-
                     <div class="students-grid" id="playersList">
                     </div>
                 </div>
 
-                <div class="center-btn-wrapper">
-                    <button class="btn btn-primary" style="padding: 20px 60px; font-size:22px;"
-                        onclick="startGame()">START GAME</button>
-                    <p id="connStatus" style="color:red; font-size: 14px; margin-top:20px;"></p>
+                <div style="text-align: center; margin-top: 48px;">
+                    <button class="btn btn-primary" style="padding: 20px 80px; font-size: 24px; border-radius: 9999px;"
+                        onclick="startGame()">START GAME ▻</button>
+                    <p id="connStatus" style="color:var(--danger-color); font-weight:700; margin-top:24px;"></p>
                 </div>
             </div>
 
             <div id="activeGameScreen">
-                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:15px;">
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:24px;">
                     <div
-                        style="background:#e7f1ff; color:#0d6efd; display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:bold;">
-                        LIVE QUESTION
+                        style="background:var(--primary-light); color:var(--primary-color); padding:6px 16px; border-radius:9999px; font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">
+                        Live Question
                     </div>
-                    <div
-                        style="background:#dc3545; color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:14px; box-shadow: 0 2px 4px rgba(220,53,69,0.3);">
-                        TIME REMAINING <span id="timerDisplay">00:60</span>
+                    <div class="timer-badge">
+                        ⏱ TIME REMAINING: <span id="timerDisplay">00:60</span>
                     </div>
                 </div>
 
@@ -329,12 +341,12 @@
 
                 <div class="stats-layout">
                     <div class="card stats-main">
-                        <h3 style="margin-top:0; text-align:left;">Real-time Feedback</h3>
+                        <h3 style="margin-top:0;">Live Answer Distribution</h3>
 
                         <div class="bar-container">
                             <div class="bar-label">A</div>
                             <div class="bar-track">
-                                <div class="bar-fill" id="barA" style="width: 0%;"></div>
+                                <div class="bar-fill" id="barA"></div>
                             </div>
                             <div class="bar-percent" id="pctA">0%</div>
                         </div>
@@ -342,7 +354,7 @@
                         <div class="bar-container">
                             <div class="bar-label">B</div>
                             <div class="bar-track">
-                                <div class="bar-fill" id="barB" style="width: 0%;"></div>
+                                <div class="bar-fill" id="barB"></div>
                             </div>
                             <div class="bar-percent" id="pctB">0%</div>
                         </div>
@@ -350,7 +362,7 @@
                         <div class="bar-container">
                             <div class="bar-label">C</div>
                             <div class="bar-track">
-                                <div class="bar-fill" id="barC" style="width: 0%;"></div>
+                                <div class="bar-fill" id="barC"></div>
                             </div>
                             <div class="bar-percent" id="pctC">0%</div>
                         </div>
@@ -358,7 +370,7 @@
                         <div class="bar-container">
                             <div class="bar-label">D</div>
                             <div class="bar-track">
-                                <div class="bar-fill" id="barD" style="width: 0%;"></div>
+                                <div class="bar-fill" id="barD"></div>
                             </div>
                             <div class="bar-percent" id="pctD">0%</div>
                         </div>
@@ -366,13 +378,14 @@
 
                     <div class="stats-side">
                         <div class="card">
-                            <h4 style="margin-top:0; color:#888;">CONFIDENCE METER</h4>
-                            <div style="background:#f1f3f5; height:15px; border-radius:10px; margin-bottom:10px;">
-                                <div style="background:#ff8c00; width:0%; height:100%; border-radius:10px;"
-                                    id="confidenceGauge"></div>
+                            <h4 style="margin-top:0; color:var(--text-main); font-weight:800; font-size:16px;">
+                                CONFIDENCE METER</h4>
+                            <div class="confidence-track">
+                                <div class="confidence-fill" id="confidenceGauge"></div>
                             </div>
-                            <p style="font-size:12px; color:#888; text-align:left; margin:0;">Average points wagered:
-                                <span id="avgWager">0</span> pts
+                            <p style="font-size:14px; font-weight:600; color:var(--text-muted); margin:0;">
+                                Class Average Wager: <span id="avgWager"
+                                    style="color:var(--text-main); font-weight:800; font-size:16px;">0</span> pts
                             </p>
                         </div>
 
@@ -394,8 +407,24 @@
                 </div>
             </div>
 
-        </div>
+        </main>
     </div>
+
+    <style>
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+    </style>
 
     <script>
         //<![CDATA[
@@ -479,7 +508,7 @@
 
             ws.onclose = function (event) {
                 connStatus.innerText = "Connection lost. Please refresh the page.";
-                clearInterval(questionTimerInterval); // Stop timer if disconnected
+                clearInterval(questionTimerInterval);
             };
         }
 
@@ -489,7 +518,7 @@
 
             const pill = document.createElement("div");
             pill.className = "student-pill";
-            pill.innerHTML = `<span class="student-icon">👤</span> `;
+            pill.innerHTML = `<span class="student-icon">👋</span> `;
 
             const textSpan = document.createElement("span");
             textSpan.textContent = playerName;
@@ -510,52 +539,36 @@
         function transitionToActiveGame(questionData) {
             lobbyScreen.style.display = "none";
             activeGameScreen.style.display = "block";
-            document.getElementById("headerStatus").innerText = "LIVE | Code: " + pin;
             document.getElementById("hostQuestionText").textContent = questionData.text;
 
-            // 1. Map the Database IDs to A, B, C, D
             choiceIdToLetterMap = {};
             const letters = ['A', 'B', 'C', 'D'];
             questionData.choices.forEach((choice, index) => {
-                if (index < 4) {
-                    choiceIdToLetterMap[choice.id] = letters[index];
-                }
+                if (index < 4) choiceIdToLetterMap[choice.id] = letters[index];
             });
 
-            // 2. Reset the math for the new question
-            currentStats = {
-                totalAnswers: 0,
-                wagerSum: 0,
-                counts: { A: 0, B: 0, C: 0, D: 0 }
-            };
+            currentStats = { totalAnswers: 0, wagerSum: 0, counts: { A: 0, B: 0, C: 0, D: 0 } };
             resetStatisticBars();
-
-            // 3. Start the 60 second countdown
             startTimer();
         }
 
-        // --- REAL TIME MATH LOGIC ---
         function processStatsUpdate(dbChoiceId, wager) {
             const letter = choiceIdToLetterMap[dbChoiceId];
-            if (!letter) return; // Failsafe
+            if (!letter) return;
 
-            // Update raw numbers
             currentStats.totalAnswers++;
             currentStats.wagerSum += wager;
             currentStats.counts[letter]++;
 
-            // Update Progress Bars
             ['A', 'B', 'C', 'D'].forEach(l => {
                 let pct = Math.round((currentStats.counts[l] / currentStats.totalAnswers) * 100) || 0;
                 document.getElementById('bar' + l).style.width = pct + '%';
                 document.getElementById('pct' + l).innerText = pct + '%';
             });
 
-            // Update Average Wager Text
             let avgWager = Math.round(currentStats.wagerSum / currentStats.totalAnswers);
             document.getElementById('avgWager').innerText = avgWager;
 
-            // Update Confidence Gauge (Assuming MAX wager is 100 points)
             let confPct = Math.min(100, Math.round((avgWager / 100) * 100));
             document.getElementById('confidenceGauge').style.width = confPct + '%';
         }
@@ -639,9 +652,7 @@
         }
 
         function autoAdvanceQuestion() {
-            console.log("Time is up! Requesting next question...");
             if (ws && ws.readyState === WebSocket.OPEN) {
-                // This mimics the host clicking the "Next Question" button
                 ws.send(JSON.stringify({ action: "NEXT_QUESTION", role: "HOST" }));
             }
         }

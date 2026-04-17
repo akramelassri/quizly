@@ -4,85 +4,225 @@
       xmlns:f="jakarta.faces.core">
 <h:head>
     <title>Quizly - Login</title>
+    <h:outputStylesheet name="css/base.css" />
+    
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #F8F9FA;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            padding: 24px;
         }
+        
         .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: var(--card-bg);
+            padding: 48px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
             width: 100%;
-            max-width: 380px;
+            max-width: 440px;
+            border: 1px solid var(--border-color);
         }
-        h1 { font-size: 24px; margin-bottom: 5px; }
-        h2 { font-size: 20px; margin-bottom: 10px; color: #111; }
-        p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+
+        /* Branding et Titres */
+        .brand-header {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: -0.04em;
+            margin-bottom: 40px;
+        }
+
+        .login-card h2 { 
+            font-size: 24px; 
+            font-weight: 800; 
+            margin-bottom: 8px; 
+            color: var(--text-main); 
+            letter-spacing: -0.02em;
+        }
         
-        label { display: block; font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;}
-        input[type="email"], input[type="password"] {
+        p.subtitle { 
+            color: var(--text-muted); 
+            font-size: 15px; 
+            font-weight: 500;
+            margin-bottom: 32px; 
+        }
+        
+        /* Formulaires (Héritent de l'esprit de base.css) */
+        label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            text-transform: uppercase; 
+            margin-bottom: 8px; 
+            letter-spacing: 0.05em;
+        }
+        
+        input[type="email"], input[type="password"], input[type="text"] {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #E0E0E0;
-            background-color: #F5F5F5;
-            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            border-radius: var(--border-radius-sm);
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: var(--transition);
         }
-        .options { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 20px; align-items: center;}
-        .options a { color: #0056b3; text-decoration: none; }
         
+        input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        /* Options annexes */
+        .options { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 14px; 
+            margin-bottom: 24px; 
+            align-items: center;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        .options-link { 
+            color: var(--primary-color); 
+            text-decoration: none; 
+            font-weight: 600;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        
+        .options-link:hover { color: var(--primary-hover); }
+
+        .checkbox-label {
+            text-transform: none; 
+            font-weight: 500; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            color: var(--text-muted);
+            letter-spacing: normal;
+        }
+        
+        /* Boutons */
         .btn-primary {
-            width: 100%; padding: 12px; background-color: #0056b3; color: white;
-            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 15px;
+            width: 100%; 
+            padding: 14px; 
+            background-color: var(--primary-color); 
+            color: white;
+            border: none; 
+            border-radius: var(--border-radius-sm); 
+            font-weight: 700; 
+            font-size: 16px;
+            cursor: pointer; 
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px var(--primary-shadow);
+            transition: var(--transition);
         }
-        .btn-google {
-            width: 100%; padding: 12px; background-color: #F5F5F5; color: #333;
-            border: 1px solid #E0E0E0; border-radius: 6px; font-weight: bold; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-        }
-        .footer { text-align: center; font-size: 12px; margin-top: 20px; color: #666;}
-        .footer a { color: #0056b3; text-decoration: none; }
         
-        #errorMessage { color: red; font-size: 12px; text-align: center; margin-bottom: 15px; display: none; }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -2px var(--primary-shadow);
+        }
+
+        .btn-google {
+            width: 100%; 
+            padding: 14px; 
+            background-color: white; 
+            color: var(--text-main);
+            border: 2px solid var(--border-color); 
+            border-radius: var(--border-radius-sm); 
+            font-weight: 700; 
+            font-size: 15px;
+            cursor: pointer;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 12px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-google:hover {
+            background-color: var(--bg-color);
+            border-color: #d4d4d8;
+        }
+
+        /* Footer */
+        .footer { 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: 500;
+            margin-top: 32px; 
+            color: var(--text-muted);
+        }
+        
+        .footer a { 
+            color: var(--primary-color); 
+            font-weight: 700;
+            text-decoration: none; 
+            transition: var(--transition);
+        }
+        
+        .footer a:hover { color: var(--primary-hover); }
+        
+        /* Alertes */
+        #errorMessage { 
+            color: var(--danger-color); 
+            background: var(--danger-bg);
+            border: 2px solid #fca5a5;
+            padding: 12px;
+            border-radius: var(--border-radius-sm);
+            font-size: 14px; 
+            font-weight: 700;
+            text-align: center; 
+            margin-bottom: 24px; 
+            display: none; 
+        }
     </style>
 </h:head>
 <h:body>
 
     <div class="login-card">
-        <h1>Quizly</h1>
+        <div class="brand-header">Quizly</div>
+        
         <h2>Welcome back</h2>
         <p class="subtitle">Please enter your details to access your dashboard.</p>
 
         <div id="errorMessage"></div>
 
         <label>Email Address</label>
-        <input type="email" id="emailInput" placeholder="name@company.com" />
+        <input type="email" id="emailInput" placeholder="name@school.edu" />
 
-        <div style="display: flex; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
             <label>Password</label>
-            <a href="forgot-password.xhtml" style="font-size: 11px; color: #0056b3; text-decoration: none;">Forgot password?</a>
+            <a href="forgot-password.xhtml" class="options-link">Forgot password?</a>
         </div>
         <input type="password" id="passwordInput" placeholder="••••••••" />
 
         <div class="options">
-            <label style="text-transform: none; font-weight: normal; margin: 0; display: flex; align-items: center; gap: 5px;">
-                <input type="checkbox" /> Remember for 30 days
+            <label class="checkbox-label">
+                <input type="checkbox" style="width: 16px; height: 16px; accent-color: var(--primary-color);" /> 
+                Remember for 30 days
             </label>
         </div>
 
         <button id="signInBtn" class="btn-primary">Sign In</button>
         
         <button id="googleBtn" class="btn-google">
-            <svg width="16" height="16" viewBox="0 0 24 24">
+            <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -90,6 +230,7 @@
             </svg>
             Continue with Google
         </button>
+        
         <div class="footer">
             Don't have an account? <a href="signup.xhtml">Create Account</a>
         </div>

@@ -6,14 +6,28 @@
 <h:head>
     <title>Quizly - Manage Questions</title>
     <h:outputStylesheet name="css/base.css" />
+    <style>
+        .logout-btn {
+            width: 100%; text-align: left; border: none; background: transparent; cursor: pointer;
+            font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text-muted);
+            padding: 12px 16px; border-radius: var(--border-radius-sm); transition: var(--transition);
+        }
+        .logout-btn:hover { color: var(--danger-color); background-color: var(--danger-bg); }
+        
+        /* Small Action Buttons for the Question List */
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+    </style>
 </h:head>
 <h:body>
 
     <div class="app-container">
         <aside class="sidebar">
             <div class="brand">
-                Instructor Portal
-                <span class="brand-sub">MANAGE YOUR CURRICULUM</span>
+                Quizly
+                <span class="brand-sub">INSTRUCTOR PORTAL</span>
             </div>
             
             <nav>
@@ -25,7 +39,7 @@
             <div class="sidebar-spacer"></div>
             
             <h:form>
-                <h:commandButton value="Logout" action="#{quizBean.logout}" styleClass="nav-link" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer;" />
+                <h:commandButton value="Logout" action="#{quizBean.logout}" styleClass="logout-btn" />
             </h:form>
         </aside>
 
@@ -42,16 +56,16 @@
 
             <div class="form-panel">
                 <h:form id="questionForm">
-                    <h3 style="margin-bottom: 16px; color: var(--text-main);">
+                    <h3 style="margin-bottom: 24px; color: var(--text-main);">
                         #{not empty questionBean.currentQuestion.id ? 'Edit Question' : 'Add a New Question'}
                     </h3>
                     
-                    <div class="form-group" style="margin-bottom: 24px;">
+                    <div class="form-group" style="margin-bottom: 32px;">
                         <label>Question Text</label>
-                        <h:inputTextarea value="#{questionBean.currentQuestion.questionText}" rows="2" required="true" />
+                        <h:inputTextarea value="#{questionBean.currentQuestion.questionText}" rows="2" required="true" placeholder="Type your question here..." />
                     </div>
 
-                    <label style="margin-bottom: 8px; display: block;">Answer Choices</label>
+                    <label style="margin-bottom: 12px; display: block;">Answer Choices</label>
                     
                     <ui:repeat value="#{questionBean.currentChoices}" var="choice" varStatus="s">
                         <div class="choice-row">
@@ -72,7 +86,7 @@
                         <f:ajax execute="@form" render="@form" />
                     </h:commandButton>
 
-                    <div class="form-actions" style="margin-top: 32px;">
+                    <div class="form-actions" style="margin-top: 40px;">
                         <h:commandButton value="Save Question" action="#{questionBean.addQuestion}" styleClass="btn btn-primary" rendered="#{empty questionBean.currentQuestion.id}" />
                         
                         <h:commandButton value="Update Question" action="#{questionBean.updateQuestion}" styleClass="btn btn-primary" rendered="#{not empty questionBean.currentQuestion.id}" />
@@ -84,24 +98,26 @@
 
             <div class="section-title">
                 <span>Questions in this Quiz</span>
-                <span style="background: #e9ecef; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold;">#{questionBean.questions.size()}</span>
+                <span style="background: var(--primary-light); color: var(--primary-color); padding: 4px 14px; border-radius: 9999px; font-size: 14px; font-weight: 800;">
+                    #{questionBean.questions.size()}
+                </span>
             </div>
 
             <h:form id="questionsListForm">
                 <h:panelGroup layout="block" class="empty-state" rendered="#{empty questionBean.questions}">
-                    <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+                    <div style="font-size: 32px; margin-bottom: 12px;">📝</div>
                     <p>No questions added yet. Use the form above to create your first one.</p>
                 </h:panelGroup>
 
                 <h:panelGroup layout="block" class="question-list" rendered="#{not empty questionBean.questions}">
                     <ui:repeat value="#{questionBean.questions}" var="question" varStatus="qs">
-                        <div class="question-card">
+                        <div class="question-card card">
                             
                             <div class="question-card-header">
                                 <p class="question-card-text">#{qs.index + 1}. #{question.questionText}</p>
-                                <div style="display: flex; gap: 8px;">
-                                    <h:commandButton value="Edit" action="#{questionBean.prepareEdit(question)}" styleClass="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" />
-                                    <h:commandButton value="Delete" action="#{questionBean.deleteQuestion(question.id)}" styleClass="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="return confirm('Delete this question?');" />
+                                <div style="display: flex; gap: 12px;">
+                                    <h:commandButton value="Edit" action="#{questionBean.prepareEdit(question)}" styleClass="btn btn-secondary btn-sm" />
+                                    <h:commandButton value="Delete" action="#{questionBean.deleteQuestion(question.id)}" styleClass="btn btn-danger btn-sm" onclick="return confirm('Delete this question?');" />
                                 </div>
                             </div>
                             

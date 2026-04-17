@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>Quizly - Live Interactive Quizzes</title>
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background-color: #ffffff; 
+            color: #18181b; 
+            line-height: 1.6; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* Navigation */
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 80px; border-bottom: 1px solid #e4e4e7; background: rgba(255, 255, 255, 0.95); position: sticky; top: 0; z-index: 50; }
+        .nav-brand { font-size: 24px; font-weight: 800; color: #09090b; letter-spacing: -0.03em; }
+        .nav-links { display: flex; gap: 40px; align-items: center; }
+        
+        /* Apply link colors ONLY to standard links, not buttons */
+        .nav-links a:not(.btn) { font-size: 16px; font-weight: 600; color: #3f3f46; text-decoration: none; transition: color 0.2s; }
+        .nav-links a:not(.btn):hover { color: #2563eb; }
+        
+        /* Buttons - Now using Pure Blue */
+        .btn { padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; border: none; transition: all 0.2s; }
+        .btn-primary { background: #2563eb; color: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3); color: #ffffff !important; }
+        .btn-outline { background: white; color: #09090b; border: 2px solid #e4e4e7; }
+        .btn-outline:hover { background: #f4f4f5; border-color: #d4d4d8; }
+        
+        /* Hero Section */
+        .hero { text-align: center; padding: 140px 64px 100px; background: #ffffff; }
+        .hero-badge { display: inline-block; padding: 8px 20px; background: #eff6ff; color: #1d4ed8; border-radius: 9999px; font-size: 14px; font-weight: 800; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .hero h1 { font-size: 72px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 32px; max-width: 800px; margin-left: auto; margin-right: auto; color: #09090b; }
+        .hero p { font-size: 22px; font-weight: 500; color: #3f3f46; max-width: 600px; margin: 0 auto 48px; line-height: 1.5; }
+        .hero-actions { display: flex; gap: 20px; justify-content: center; }
+        
+        /* Stats */
+        .stat-row { display: flex; gap: 80px; margin-top: 100px; padding-top: 64px; border-top: 2px solid #f4f4f5; justify-content: center; }
+        .stat-num { font-size: 48px; font-weight: 900; letter-spacing: -0.03em; color: #09090b; line-height: 1; }
+        .stat-label { font-size: 16px; font-weight: 600; color: #52525b; margin-top: 12px; }
+        
+        /* Sections */
+        .section { padding: 120px 80px; background: #ffffff; }
+        .section-alt { background: #fafafa; border-top: 1px solid #e4e4e7; border-bottom: 1px solid #e4e4e7; }
+        .section-label { font-size: 14px; font-weight: 800; color: #2563eb; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: block; }
+        .section h2 { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px; color: #09090b; line-height: 1.1; }
+        .section-sub { font-size: 20px; font-weight: 500; color: #3f3f46; max-width: 600px; line-height: 1.6; margin-bottom: 64px; }
+        
+        /* Feature Grid */
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        .feature-card { background: #ffffff; border: 2px solid #f4f4f5; border-radius: 16px; padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.05); border-color: #e4e4e7; }
+        .feature-icon { width: 56px; height: 56px; border-radius: 14px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+        .feature-icon svg { width: 28px; height: 28px; stroke: #2563eb; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .feature-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 12px; color: #09090b; letter-spacing: -0.02em;}
+        .feature-card p { font-size: 17px; font-weight: 500; color: #52525b; line-height: 1.6; }
+        
+        /* How it works */
+        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px; }
+        .step-num { font-size: 16px; font-weight: 800; color: #2563eb; margin-bottom: 16px; letter-spacing: 0.05em; text-transform: uppercase;}
+        .how-step h3 { font-size: 24px; font-weight: 800; margin-bottom: 16px; color: #09090b; letter-spacing: -0.02em;}
+        .how-step p { font-size: 17px; font-weight: 500; color: #52525b; line-height: 1.6; }
+        
+        /* CTA Section */
+        .cta-section { background: #fafafa; padding: 120px 80px; text-align: center; }
+        .cta-section h2 { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 24px; color: #09090b; }
+        .cta-section p { font-size: 22px; font-weight: 500; color: #3f3f46; margin-bottom: 48px; }
+        
+        /* Footer */
+        .footer { padding: 48px 80px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e4e4e7; background: #ffffff; }
+        .footer-left { font-size: 16px; color: #52525b; font-weight: 600;}
+        .footer-links { display: flex; gap: 32px; }
+        .footer-links a { font-size: 16px; font-weight: 600; color: #52525b; text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: #09090b; }
+    </style>
+</h:head>
+<h:body>
+<div class="lp">
+    <nav class="nav">
+        <span class="nav-brand">Quizly</span>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="join.xhtml">Join a quiz</a>
+            <a href="login.xhtml" class="btn btn-primary" style="padding: 10px 24px;">Teacher login</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">Real-time classroom quizzes</div>
+        <h1>Quizzes that reveal how confident your students really are</h1>
+        <p>Students bet points on their answers. Teachers see hesitation in real time. A smarter way to measure understanding.</p>
+        <div class="hero-actions">
+            <a href="login.xhtml" class="btn btn-primary">Get started free</a>
+            <a href="#how" class="btn btn-outline">See how it works</a>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat">
+                <div class="stat-num">100pts</div>
+                <div class="stat-label">Starting balance per student</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">1–50</div>
+                <div class="stat-label">Points wagered per question</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">Live</div>
+                <div class="stat-label">Real-time stats for teachers</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-alt" id="features">
+        <span class="section-label">Features</span>
+        <h2>Built for meaningful assessment</h2>
+        <p class="section-sub">More than a quiz tool — a window into how well your students actually understand the material.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3>Confidence betting</h3>
+                <p>Students wager 1–50 points per answer. High bets signal confidence, low bets reveal uncertainty — automatically.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                </div>
+                <h3>Real-time statistics</h3>
+                <p>See answer distribution and hesitation rates per question as your class responds. No waiting for results.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                </div>
+                <h3>Session history</h3>
+                <p>Every session is saved. Review which questions were most missed and average confidence across your class.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3>No student accounts</h3>
+                <p>Students join with just a pseudo and a code. No sign-up, no friction. They're in the room in seconds.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <h3>Full quiz management</h3>
+                <p>Create, edit, and organise quizzes with multiple-choice questions from your teacher dashboard.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <h3>Live leaderboard</h3>
+                <p>End every session with a ranked scoreboard. Students see results instantly — keeps energy high.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="how">
+        <span class="section-label">How it works</span>
+        <h2>From setup to results in minutes</h2>
+        <p class="section-sub">Three steps for teachers, one step for students.</p>
+        <div class="how-grid">
+            <div class="how-step">
+                <div class="step-num">01 — Teacher</div>
+                <h3>Create a quiz</h3>
+                <p>Add your questions and multiple-choice answers from the dashboard. Mark the correct answer for each.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-num">02 — Teacher</div>
+                <h3>Launch a session</h3>
+                <p>Start a live session and share the unique join code. Students join the waiting room instantly.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-num">03 — Everyone</div>
+                <h3>Play and review</h3>
+                <p>Questions appear one by one. Students answer and bet. Watch the stats live, then review results at the end.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>Ready to run your first quiz?</h2>
+        <p>Free to use. No credit card. Takes five minutes to set up.</p>
+        <div class="cta-actions">
+            <a href="login.xhtml" class="btn btn-primary">Create teacher account</a>
+            <a href="join.xhtml" class="btn btn-outline">Join as student</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <span class="footer-left">Quizly — 2025–2026</span>
+        <div class="footer-links">
+            <a href="login.xhtml">Teacher login</a>
+            <a href="join.xhtml">Join a quiz</a>
+        </div>
+    </footer>
+</div>
+</h:body>
+</html>
