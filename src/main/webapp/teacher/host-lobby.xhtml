@@ -7,6 +7,7 @@
     </f:metadata>
 
     <h:outputStylesheet name="css/base.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         .logout-btn {
@@ -293,13 +294,13 @@
                     <div class="card pin-card">
                         <div class="pin-label">Join at quizly.com with PIN</div>
                         <div class="pin-number">#{param['pin']}</div>
-                        <button class="btn btn-secondary">Copy Join Link</button>
+                        <!-- Replace the static button -->
+                        <button class="btn btn-secondary" onclick="copyJoinLink()">Copy Join Link</button>
                     </div>
                     <div class="card qr-card">
-                        <div
-                            style="background:var(--bg-color); color:var(--text-muted); height:160px; display:flex; align-items:center; justify-content:center; border-radius:var(--border-radius-sm); border: 2px dashed var(--border-color); margin-bottom:16px; font-weight:700;">
-                            [ QR Code Space ]
-                        </div>
+                        <!-- ✅ QR code renders here -->
+                        <div id="qrCodeContainer"
+                            style="display:flex; justify-content:center; align-items:center; margin-bottom:16px;"></div>
                         <p style="font-size:14px; font-weight:600; color:var(--text-muted); margin:0;">Scan to join on
                             mobile</p>
                     </div>
@@ -434,6 +435,21 @@
         let ws;
         let studentCount = 0;
 
+        // Build the full join URL students will land on
+        const joinUrl = window.location.origin + "#{request.contextPath}/join.xhtml?pin=" + pin;
+
+        // Generate the QR code into the container
+        if (pin) {
+            new QRCode(document.getElementById("qrCodeContainer"), {
+                text: joinUrl,
+                width: 160,
+                height: 160,
+                colorDark: "#111111",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H  // High error correction
+            });
+        }
+
         // --- GAME STATE VARIABLES ---
         let choiceIdToLetterMap = {};
         let currentStats = {
@@ -525,6 +541,15 @@
             pill.appendChild(textSpan);
 
             playersList.appendChild(pill);
+        }
+
+        function copyJoinLink() {
+            const joinUrl = pin;
+            navigator.clipboard.writeText(joinUrl).then(() => {
+                const btn = event.target;
+                btn.innerText = "✓ Copied!";
+                setTimeout(() => btn.innerText = "Copy Join Link", 2000);
+            });
         }
 
         function startGame() {

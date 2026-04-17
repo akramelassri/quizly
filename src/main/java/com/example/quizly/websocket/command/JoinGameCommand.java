@@ -45,6 +45,16 @@ public class JoinGameCommand implements GameCommand {
 
             String pin = session.getPathParameters().get("pin");
 
+            if (room.getPlayers().stream().anyMatch(player -> player.getUsername().equals(message.name))) {
+                System.err.println("Student " + message.name + " is already in the room.");
+                try {
+                    session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY,
+                            "the name is taking by another player"));
+                } catch (IOException ignored) {
+                }
+                return;
+            }
+
             // 1. Register to Database AND get the ID back
             Long participantDbId = gameService.addPlayerToSession(pin, message.name);
 
