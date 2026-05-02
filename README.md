@@ -16,7 +16,7 @@ Quizly is designed for live, instructor-led classroom environments. Unlike stand
 ### Student Experience
 ![Student Submit Answer](images/student_submit_answer.png)
 
-## 🏆 Key Accomplishments (XYZ Formula)
+## 🏆 Key Accomplishments
 *   **Optimized Code Maintainability:** Implemented **Command** and **Observable** design patterns to decouple game logic from the communication layer, reducing architectural complexity.
 *   **Engineered Real-Time Sync:** Leveraged **Jakarta WebSockets** to achieve sub-second state updates across concurrent student sessions.
 *   **Advanced Logic Implementation:** Designed a **Certainty-Based Wagering** system to identify student "lucky guesses" versus mastery, backed by a structured **PostgreSQL** relational model.
