@@ -493,6 +493,13 @@
             ws.onopen = function (event) {
                 console.log("Connected to lobby. Sending HOST auth...");
                 ws.send(JSON.stringify({ action: "JOIN", role: "HOST", firebaseToken: token }));
+                
+                // Keep-alive ping every 30 seconds to prevent reverse-proxy or container idle timeout
+                setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ action: "PING" }));
+                    }
+                }, 30000);
             };
 
             ws.onmessage = function (event) {

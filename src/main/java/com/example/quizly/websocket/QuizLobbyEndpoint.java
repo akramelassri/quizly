@@ -37,6 +37,10 @@ public class QuizLobbyEndpoint {
     @OnOpen
     public void OnOpen(Session session, @PathParam("pin") String pin) {
         try {
+            // Increase max idle timeout to 1 hour (3600000 ms) to prevent automatic
+            // kick-out after 1 minute of inactivity
+            session.setMaxIdleTimeout(3600000L);
+
             boolean isRoomLive = false;
 
             Optional<com.example.quizly.models.Session> roomOptional = gameService.getSessionDao().findByPin(pin);
@@ -90,10 +94,13 @@ public class QuizLobbyEndpoint {
                 return;
             }
 
-            // 3. Look up the correct command based on the JSON "action" property
+            // Look up the correct command based on the JSON "action" property
+            if ("PING".equals(payload.action)) {
+                return; // Ignore keep-alive heartbeats
+            }
             GameCommand command = commandRegistry.get(payload.action);
 
-            // 4. Execute the logic!
+            // Execute the logic!
             if (command != null) {
                 command.execute(session, room, payload, gameService);
             } else {
