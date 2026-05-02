@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core"
+    xmlns:ui="jakarta.faces.facelets">
+<h:head>
+    <title>Quizly - Create Quiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #F8F9FA;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #111;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-danger,
+        .btn-success {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 20px;
+            padding: 14px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .question-card {
+            background: #fdfdfd;
+            border: 1px solid #e3e3e3;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #444;
+        }
+
+        .choice-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+
+        .choice-row input[type="text"] {
+            flex-grow: 1;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin: 30px 0;
+        }
+    </style>
+</h:head>
+<h:body>
+
+    <div class="form-container">
+        <h:link outcome="/prof/dashboard" value="← Back to Dashboard" styleClass="nav-link" />
+
+        <h1>Create a New Quiz</h1>
+
+        <h:form id="quizForm">
+            <!-- Basic Info -->
+            <div class="form-group">
+                <h:outputLabel for="title" value="Quiz Title" />
+                <h:inputText id="title" value="#{quizBean.quiz.title}" required="true"
+                    requiredMessage="Title is required" styleClass="form-control" />
+                <h:message for="title" style="color: red; font-size: 12px; display: block; margin-top: 5px;" />
+            </div>
+
+            <div class="form-group">
+                <h:outputLabel for="subject" value="Subject" />
+                <h:inputText id="subject" value="#{quizBean.quiz.subject}" styleClass="form-control" />
+            </div>
+
+            <div class="form-group">
+                <h:outputLabel for="description" value="Description" />
+                <h:inputTextarea id="description" value="#{quizBean.quiz.description}" rows="3"
+                    styleClass="form-control" />
+            </div>
+
+            <hr />
+            <h2>Questions</h2>
+
+            <!-- Questions Container (AJAX Target) -->
+            <h:panelGroup id="questionsContainer" layout="block">
+
+                <ui:repeat value="#{quizBean.quiz.questions}" var="q" varStatus="qStatus">
+                    <div class="question-card">
+                        <div class="question-header">
+                            <h3>Question #{qStatus.index + 1}</h3>
+                            <h:commandButton value="Remove Question" action="#{quizBean.removeQuestion(q)}"
+                                styleClass="btn-danger" immediate="true">
+                                <f:ajax render="@form" execute="@this" />
+                            </h:commandButton>
+                        </div>
+
+                        <div class="form-group">
+                            <h:outputLabel value="Question Text" />
+                            <h:inputTextarea value="#{q.questionText}" required="true"
+                                requiredMessage="Question text is required" rows="2" styleClass="form-control" />
+                        </div>
+
+                        <!-- Choices Container -->
+                        <div style="margin-top: 15px;">
+                            <h:outputLabel value="Choices:" style="margin-bottom: 10px;" />
+
+                            <ui:repeat value="#{q.choices}" var="c" varStatus="cStatus">
+                                <div class="choice-row">
+                                    <h:selectBooleanCheckbox value="#{c.correct}" title="Mark as correct" />
+                                    <h:inputText value="#{c.choiceText}" required="true"
+                                        requiredMessage="Choice text is required" styleClass="form-control"
+                                        placeholder="Choice text..." />
+
+                                    <h:commandButton value="X" action="#{quizBean.removeChoice(q, c)}"
+                                        styleClass="btn-danger" immediate="true" title="Remove Choice">
+                                        <f:ajax render="@form" execute="@this" />
+                                    </h:commandButton>
+                                </div>
+                            </ui:repeat>
+
+                            <h:commandButton value="+ Add Choice" action="#{quizBean.addChoice(q)}"
+                                styleClass="btn-success" style="margin-top: 10px;">
+                                <f:ajax render="@form" execute="@form" />
+                            </h:commandButton>
+                        </div>
+                    </div>
+                </ui:repeat>
+
+            </h:panelGroup>
+
+            <!-- Add Question Button -->
+            <h:commandButton value="+ Add Question" action="#{quizBean.addQuestion}" styleClass="btn-secondary">
+                <f:ajax render="questionsContainer" execute="@form" />
+            </h:commandButton>
+
+            <!-- Save Quiz Button -->
+            <h:commandButton value="Save Quiz" action="#{quizBean.saveQuiz}" styleClass="btn-primary" />
+        </h:form>
+    </div>
+
+</h:body>
+
+</html>

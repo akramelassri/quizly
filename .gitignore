@@ -37,3 +37,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+src/main/resources/quizly-356ee-firebase-adminsdk-fbsvc-8c31916c1d.json

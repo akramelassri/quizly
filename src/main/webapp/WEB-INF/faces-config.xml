@@ -4,4 +4,12 @@
               xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                                   https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_4_0.xsd" >
 
+    <navigation-rule>
+        <from-view-id>/teacher/quizzes.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>quiz-detail</from-outcome>
+            <to-view-id>/teacher/quiz-detail.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
 </faces-config>
